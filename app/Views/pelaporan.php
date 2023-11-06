@@ -14,8 +14,6 @@
 <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/datatables-searchpanes/css/searchPanes.bootstrap4.min.css'); ?>">
 <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/datatables-searchbuilder/css/searchBuilder.bootstrap4.min.css'); ?>">
 <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/datatables-select/css/select.bootstrap4.min.css'); ?>">
-<link rel="stylesheet" href="<?= base_url('adminLTE/plugins/select2/css/select2.min.css'); ?>">
-<link rel="stylesheet" href="<?= base_url('adminLTE/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css'); ?>">
 <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
 
 <?= $this->endSection(); ?>
@@ -61,13 +59,9 @@
 <script src="<?= base_url('adminLTE/plugins/datatables-searchbuilder/js/searchBuilder.bootstrap4.min.js'); ?>"></script>
 <script src="<?= base_url('adminLTE/plugins/datatables-select/js/dataTables.select.min.js'); ?>"></script>
 <script src="<?= base_url('adminLTE/plugins/datatables-select/js/select.bootstrap4.min.js'); ?>"></script>
-<script src="<?= base_url('adminLTE/plugins/select2/js/select2.full.min.js'); ?>"></script>
 <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 <script src="<?= base_url('js/util.js'); ?>"></script>
 <script>
-    $(function() {
-        $('.select2').select2()
-    });
     $(document).ready(function() {
 
 
@@ -108,6 +102,18 @@
 
                     let dataTable = $('#pelaporan').DataTable({
                         language: {
+                            emptyTable: "Silakam tentukan periode pelaporan terlebih dahulu",
+                            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                            paginate: {
+                                first: "Pertama",
+                                last: "Terakhir",
+                                next: "Selanjutnya",
+                                previous: "Sebelumnya"
+                            },
+                            infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                            infoFiltered: "(menyaring dari _MAX_ total data)",
+                            search: "Cari:",
+                            zeroRecords: "Tidak ada data yang ditemukan",
                             searchPanes: {
                                 title: {
                                     _: 'Filter terpilih - %d',
@@ -174,6 +180,12 @@
 
                 },
                 error: function(error) {
+                    Swal.fire(
+                        'Maaf',
+                        'Gagal mengambil data, silakan hubungi admin',
+                        'error'
+                    )
+                    console.error("Error fetching data and columns:", error);
                     console.error("Error fetching data and columns:", error);
                 }
             });

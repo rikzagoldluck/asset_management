@@ -2,17 +2,23 @@
 
 namespace App\Controllers;
 
+use App\Models\AsetBergerakModel;
+use App\Models\LogAsetModel;
 use Config\Services;
+use Myth\Auth\Models\UserModel;
 
 class Pelaporan extends BaseController
 {
     public function index($param): string
     {
         $data['title'] = 'Pelaporan';
+        $users = model(UserModel::class);
+        $data['user'] = $users->find(session()->get('logged_in'));
+
         return view('pelaporan', $data);
     }
 
-    public function getDataAndColumns($modelName = null)
+    public function getDataAndColumns($modelName = null, $forWhat = null)
     {
         $modelNamespace = '\App\Models\\' . ucfirst($modelName);
 
@@ -24,6 +30,8 @@ class Pelaporan extends BaseController
             $data = $model->findAll(); // Implement this method in your model
             // $columns = $model->getColumns(); // Implement this method in your model
             $columns = $model->getColumns();
+            if (!is_null($forWhat)) {
+            }
             return $this->response->setJSON(['data' => $data, 'columns' => $columns]);
         } else {
             // Model doesn't exist, handle accordingly (e.g., return an error response)
@@ -31,14 +39,46 @@ class Pelaporan extends BaseController
         }
     }
 
-    public function getAllTables()
+    public function transaksiAset()
     {
-        // Assuming you have a database connection
-        $db = \Config\Database::connect();
+        $data['title'] = 'Transaksi Aset';
+        $users = model(UserModel::class);
+        $data['user'] = $users->find(session()->get('logged_in'));
+        return view('transaksi-aset', $data);
+    }
 
-        // Get all tables in the database
-        $tables = $db->listTables();
+    public function dataTable()
+    {
+        $start = $this->request->getJsonVar('start');
+        $end = $this->request->getJsonVar('end');
+        $logTransaksiModel = new LogAsetModel();
+        // STOK AWAL = KETERSEDIAAN - JUMLAH DATA PERTAMA DI PERIODE TERTENTU (YANG DICARI)
+        $stokAwalAsets = $logTransaksiModel->getStokAwal($start, $end);
+        // STOK AKHIR = KETERSEDIAAN DATA TERAKHIR DI PERIODE TERTENTU (YANG DICARI)
+        $stokAkhirAsets = $logTransaksiModel->getStokAkhir($start, $end);
 
-        return $this->response->setJSON($tables);
+        $mergedData = [];
+
+
+        foreach ($stokAwalAsets as $awalItem) {
+            foreach ($stokAkhirAsets as $akhirItem) {
+                if ($awalItem->kode === $akhirItem->kode) {
+                    $mergedData[] = [
+                        'kode' => $awalItem->kode,
+                        'namabarang' => $akhirItem->namabarang,
+                        'unit' => $akhirItem->unit,
+                        'stok_awal' => $awalItem->stok_awal,
+                        'stok_akhir' => $akhirItem->stok_akhir,
+                        'mutasi' => intval($akhirItem->stok_akhir) - intval($awalItem->stok_awal),
+                        'keterangan' => $akhirItem->keterangan
+                    ];
+                    break; // Break the inner loop once a match is found
+                }
+            }
+        }
+        return $this->response->setJSON($mergedData);
+
+
+        // MUTASI BARANG = AKUMULASI JUMLAH TRANSAKSI MASUK - AKUMULASI JUMLAH TRANSAKSI KELUAR DI PERIODE TERTENTU (YANG DICARI)  
     }
 }

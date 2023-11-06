@@ -44,9 +44,6 @@
 <!-- <script src="<?= base_url('adminLTE/plugins/jsgrid/demos/db.js'); ?>"></script> -->
 <script src="<?= base_url('adminLTE/plugins/jsgrid/jsgrid.min.js'); ?>"></script>
 
-<script src="<?= base_url('adminLTE/plugins/moment/moment.min.js'); ?>"></script>
-<script src="<?= base_url('adminLTE/plugins/moment/locale/id.js'); ?>"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script src="<?= base_url('js/jsgrid-config.js'); ?>"></script>
 <script src="<?= base_url('adminLTE/plugins/sweetalert2/sweetalert2.all.min.js'); ?>"></script>
 <script>
@@ -162,7 +159,9 @@
       fields: [{
           name: "kode",
           title: "Kode",
-          type: "text",
+          type: {
+            "readonly": true
+          },
           width: 75,
           validate: [
             "required",
@@ -180,10 +179,31 @@
           validate: "required"
         },
         {
+          name: "merk",
+          title: "Merk",
+          type: "text",
+          width: 100,
+          validate: "required"
+        },
+        {
+          name: "tipe",
+          title: "Tipe",
+          type: "text",
+          width: 100,
+          validate: "required"
+        },
+        {
+          name: "kuantitas",
+          title: "Kuantitas",
+          type: "number",
+          width: 100,
+          validate: "required"
+        },
+        {
           name: "tahun",
           title: "Tahun",
           type: "year",
-          width: 50,
+          width: 70,
           filtering: false,
           validate: ["required", {
             validator: "maxLength",

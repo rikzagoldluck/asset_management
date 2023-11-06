@@ -4,9 +4,9 @@ namespace App\Controllers;
 
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
-use App\Models\AsetBergerakModel;
+use App\Models\AsetBangunanModel;
 
-class AsetBergerakAPI extends ResourceController
+class AsetBangunanAPI extends ResourceController
 {
     use ResponseTrait;
     // get all product
@@ -14,23 +14,12 @@ class AsetBergerakAPI extends ResourceController
 
     public function index()
     {
-        $model = new AsetBergerakModel();
+        $model = new AsetBangunanModel();
         $filter = $this->request->getGet(); // Get filter parameters from the request
         $filter['search'] = isset($filter['search']) ? $filter['search'] : '';
 
         // Perform a database query using $filter values to search multiple columns
         $data = $model->searchData($filter);
-
-        if (isset($filter['type']) && $filter['type'] === 'barcode') {
-            $select2Data = [];
-            foreach ($data as $item) {
-                $select2Data[] = [
-                    'id' => $item['kodebarang'],   // Use a unique identifier as 'id'
-                    'text' => $item['kodebarang'] . " - " . $item['namabarang'] . " (" . $item['ketersediaan'] . ") - " . $item['unit'] // Use a display-friendly value as 'text'
-                ];
-            }
-            return $this->response->setJSON(['results' => $select2Data]);
-        }
 
         return $this->response->setJSON($data);
     }
@@ -38,7 +27,7 @@ class AsetBergerakAPI extends ResourceController
     // create a product
     public function create()
     {
-        $model = new AsetBergerakModel();
+        $model = new AsetBangunanModel();
 
         $model->insert($this->request->getJSON());
         $res = $model->find($model->getInsertID());
@@ -48,8 +37,8 @@ class AsetBergerakAPI extends ResourceController
     // update product
     public function update($id = null)
     {
-        $model = new AsetBergerakModel();
-        $kode = $this->request->getJsonVar('kodebarang');
+        $model = new AsetBangunanModel();
+        $kode = $this->request->getJsonVar('koderuang');
         $json = $this->request->getJSON();
         // Insert to Database
         $model->update($kode, $json);
@@ -66,8 +55,8 @@ class AsetBergerakAPI extends ResourceController
     // delete product
     public function delete($id = null)
     {
-        $kode = $this->request->getJsonVar('kodebarang');
-        $model = new AsetBergerakModel();
+        $kode = $this->request->getJsonVar('koderuang');
+        $model = new AsetBangunanModel();
         $data = $model->find($kode);
         if ($data) {
             $model->delete($kode);

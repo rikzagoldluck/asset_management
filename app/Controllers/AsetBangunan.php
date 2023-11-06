@@ -2,26 +2,26 @@
 
 namespace App\Controllers;
 
-use App\Models\MasterAsetModel;
+use App\Models\AsetBangunanModel;
 use Myth\Auth\Models\UserModel;
 
-class MasterAset extends BaseController
+class AsetBangunan extends BaseController
 {
 
 
     public function index(): string
     {
 
-        $data['title'] = 'Master Aset';
+        $data['title'] = 'Aset Bangunan';
         $users = model(UserModel::class);
         $data['user'] = $users->find(session()->get('logged_in'));
 
-        return view('master-aset', $data);
+        return view('aset-bangunan', $data);
     }
 
-    public function distinct($param = null)
+    public function distinct($param)
     {
-        $model = new MasterAsetModel();
+        $model = new AsetBangunanModel();
         $uniqueValues = $model->getUniqueValues($param);
         return $this->response->setJSON($uniqueValues);
     }

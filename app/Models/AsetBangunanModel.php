@@ -4,25 +4,19 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class AsetBergerakModel extends Model
+class AsetBangunanModel extends Model
 {
-    protected $table = 'barangbergerak';
-    protected $primaryKey = 'kodebarang';
-    protected $allowedFields = ['kodebarang', 'namabarang', 'statusbarang', 'unit', 'lokasi', 'ketersediaan', 'keterangan', 'tanggal'];
+    protected $table = 'dataruang';
+    protected $primaryKey = 'koderuang';
+    protected $allowedFields = ['koderuang', 'namaruang', 'pruang', 'lruang', 'truang', 'dinding', 'jendela', 'lantai', 'atap', 'tanggal', 'keterangan'];
     // protected $useTimestamps = true;
-
-
     public function searchData($filter)
     {
         $builder = $this->db->table($this->table);
-        $builder->like('kodebarang', $filter['search']);
-        $builder->orLike('namabarang', $filter['search']);
-        $builder->orLike('statusbarang', $filter['search']);
-        $builder->orLike('unit', $filter['search']);
-        $builder->orLike('lokasi', $filter['search']);
-        $builder->orLike('ketersediaan', $filter['search']);
-        $builder->orLike('keterangan', $filter['search']);
+        $builder->like('koderuang', $filter['search']);
+        $builder->orLike('namaruang', $filter['search']);
         $builder->orLike('tanggal', $filter['search']);
+        $builder->orLike('keterangan', $filter['search']);
         $builder->orderBy('tanggal', 'DESC');
         // Add more columns as needed
 

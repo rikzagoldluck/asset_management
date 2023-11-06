@@ -12,8 +12,10 @@
 <?= $this->section('css') ?>
 <!-- jsGrid -->
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/jsgrid/jsgrid.min.css'); ?>">
 <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/jsgrid/jsgrid-theme.min.css'); ?>">
+<link rel="stylesheet" href="<?= base_url('adminLTE/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css'); ?>">
 
 <?= $this->endSection(); ?>
 
@@ -42,7 +44,9 @@
 <!-- <script src="<?= base_url('adminLTE/plugins/jsgrid/demos/db.js'); ?>"></script> -->
 <script src="<?= base_url('adminLTE/plugins/jsgrid/jsgrid.min.js'); ?>"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script src="<?= base_url('js/jsgrid-config.js'); ?>"></script>
+<script src="<?= base_url('adminLTE/plugins/sweetalert2/sweetalert2.all.min.js'); ?>"></script>
 <script>
   function showNotification(message) {
     Swal.fire({
@@ -58,39 +62,13 @@
     $("#jsGrid1").jsGrid("loadData");
 
     // Sort the grid based on a certain column
-    let sortingField = "kodebarang"; // Replace with the actual column name
-    let sortingOrder = "asc"; // or "desc" for descending order
+    let sortingField = "tanggal"; // Replace with the actual column name
+    let sortingOrder = "desc"; // or "desc" for descending order
     $("#jsGrid1").jsGrid("sort", sortingField, sortingOrder);
   }
 
-  // Assuming you have an asynchronous function to fetch the values
-  async function fetchUniqueValues() {
-    try {
-      // Use the correct URL for fetching unique values
-      let response = await $.ajax({
-        type: "GET",
-        url: "/master-aset/distinct/jenisbarang",
-      });
-      initializeJSGrid(response);
-    } catch (error) {
-      console.error("Error fetching unique values:", error);
-    }
-  }
-
-  // Call the function to fetch unique values
-  fetchUniqueValues();
-
-  function initializeJSGrid(uniqueValues) {
+  function initializeJSGrid(uniqueValues1, uniqueValues2) {
     // $(function() {
-    let unitUnique = uniqueValues.map(name => {
-      return {
-        Name: name,
-        Id: name
-      };
-    })
-
-
-
     $("#jsGrid1").jsGrid({
       height: "400px",
       width: "100%",
@@ -121,14 +99,14 @@
         loadData: function(filter) {
           return $.ajax({
             type: "GET",
-            url: "/MasterAsetAPI",
+            url: "/AsetBangunanAPI",
             data: filter,
           });
         },
         insertItem: function(item) {
           return $.ajax({
             type: "POST",
-            url: "/MasterAsetAPI",
+            url: "/AsetBangunanAPI",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -137,7 +115,7 @@
         updateItem: function(item) {
           return $.ajax({
             type: "PUT",
-            url: "/MasterAsetAPI/1",
+            url: "/AsetBangunanAPI/1",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -146,7 +124,7 @@
         deleteItem: function(item) {
           return $.ajax({
             type: "DELETE",
-            url: "/MasterAsetAPI/1",
+            url: "/AsetBangunanAPI/1",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -154,7 +132,7 @@
         }
       },
       fields: [{
-          name: "kodebarang",
+          name: "koderuang",
           title: "Kode",
           type: {
             "readonly": true
@@ -169,49 +147,204 @@
           ]
         },
         {
-          name: "namabarang",
+          name: "namaruang",
           title: "Nama",
           type: "text",
-          width: 150,
+          width: 100,
           validate: "required"
         },
         {
-          name: "jenisbarang",
-          title: "Jenis Barang",
-          type: "select",
-          items: unitUnique,
-          editTemplate: function() {
-            let $select = jsGrid.fields.select.prototype.editTemplate.apply(this, arguments);
-            let filteredValues = uniqueValues;
+          name: "pruang",
+          title: "P(M)",
+          type: "text",
+          width: 100,
+          validate: [
+            "required",
 
-            // Filter options based on the array
-            $select.find("option").filter(function() {
-              return filteredValues.indexOf($(this).text()) === -1;
-            }).remove();
-            return $select;
-          },
+            function(value, item) {
+              return /^[0-9]+(\,[0-9]+)?$/.test(value);
+            }
+          ]
+        },
+        {
+          name: "lruang",
+          title: "L(M)",
+          type: "text",
+          width: 100,
+          validate: [
+            "required",
+            function(value, item) {
+              return /^[0-9]+(\,[0-9]+)?$/.test(value);
+            }
+          ]
+        },
+        {
+          name: "truang",
+          title: "T(M)",
+          type: "text",
+          width: 100,
+          validate: [
+            "required",
+            function(value, item) {
+              return /^[0-9]+(\,[0-9]+)?$/.test(value);
+            }
+          ]
+        },
+
+        {
+          filtering: false,
+          validate: "required",
+          name: "dinding",
+          title: "Dinding",
+          type: "select",
+          width: 100,
+          items: [{
+              Name: "Baik",
+              Id: "Baik"
+            },
+            {
+              Name: "Rusak",
+              Id: "Rusak"
+            },
+            {
+              Name: "Rusak Sedang",
+              Id: "Rusak Sedang"
+            },
+            {
+              Name: "Rusak Parah",
+              Id: "Rusak Parah"
+            },
+          ],
           valueField: "Id",
           textField: "Name",
-          width: 100,
-          filtering: false,
-          validate: "required"
+          selectedIndex: 0,
+          editTemplate: function() {
+            let $select = jsGrid.fields.select.prototype.editTemplate.apply(this, arguments);
+            $select.find("option[value='Baik']")
+            $select.find("option[value='Rusak']")
+            $select.find("option[value='Rusak Sedang']")
+            $select.find("option[value='Rusak Parah']")
+            return $select;
+          }
+
         },
+
         {
-          validate: "required",
-          name: "tipebarang",
-          title: "Tipe Barang",
-          type: "text",
-          width: 150,
           filtering: false,
+          validate: "required",
+          name: "jendela",
+          title: "Jendela",
+          type: "select",
+          width: 100,
+          items: [{
+              Name: "Baik",
+              Id: "Baik"
+            },
+            {
+              Name: "Rusak",
+              Id: "Rusak"
+            },
+            {
+              Name: "Rusak Sedang",
+              Id: "Rusak Sedang"
+            },
+            {
+              Name: "Rusak Parah",
+              Id: "Rusak Parah"
+            },
+          ],
+          valueField: "Id",
+          textField: "Name",
+          selectedIndex: 0,
+          editTemplate: function() {
+            let $select = jsGrid.fields.select.prototype.editTemplate.apply(this, arguments);
+            $select.find("option[value='Baik']")
+            $select.find("option[value='Rusak']")
+            $select.find("option[value='Rusak Sedang']")
+            $select.find("option[value='Rusak Parah']")
+            return $select;
+          }
+
         },
+
         {
           filtering: false,
           validate: "required",
-          name: "ketersediaan",
-          title: "Ketersediaan",
-          type: "number",
+          name: "lantai",
+          title: "Lantai",
+          type: "select",
           width: 100,
+          items: [{
+              Name: "Baik",
+              Id: "Baik"
+            },
+            {
+              Name: "Rusak",
+              Id: "Rusak"
+            },
+            {
+              Name: "Rusak Sedang",
+              Id: "Rusak Sedang"
+            },
+            {
+              Name: "Rusak Parah",
+              Id: "Rusak Parah"
+            },
+          ],
+          valueField: "Id",
+          textField: "Name",
+          selectedIndex: 0,
+          editTemplate: function() {
+            let $select = jsGrid.fields.select.prototype.editTemplate.apply(this, arguments);
+            $select.find("option[value='Baik']")
+            $select.find("option[value='Rusak']")
+            $select.find("option[value='Rusak Sedang']")
+            $select.find("option[value='Rusak Parah']")
+            return $select;
+          }
+
         },
+
+        {
+          filtering: false,
+          validate: "required",
+          name: "atap",
+          title: "Atap",
+          type: "select",
+          width: 100,
+          items: [{
+              Name: "Baik",
+              Id: "Baik"
+            },
+            {
+              Name: "Rusak",
+              Id: "Rusak"
+            },
+            {
+              Name: "Rusak Sedang",
+              Id: "Rusak Sedang"
+            },
+            {
+              Name: "Rusak Parah",
+              Id: "Rusak Parah"
+            },
+          ],
+          valueField: "Id",
+          textField: "Name",
+          selectedIndex: 0,
+          editTemplate: function() {
+            let $select = jsGrid.fields.select.prototype.editTemplate.apply(this, arguments);
+            $select.find("option[value='Baik']")
+            $select.find("option[value='Rusak']")
+            $select.find("option[value='Rusak Sedang']")
+            $select.find("option[value='Rusak Parah']")
+            return $select;
+          }
+
+        },
+
+
+
         {
           name: "keterangan",
           title: "Keterangan",
@@ -219,7 +352,15 @@
           width: 100,
           filtering: false
         },
+        {
+          validate: "required",
+          name: "tanggal",
+          title: "Tanggal",
+          type: "date",
+          width: 100,
+          filtering: false,
 
+        },
         {
           type: "control"
         }
@@ -250,7 +391,7 @@
     });
     // });
   }
-
+  initializeJSGrid()
   let debounceTimer;
 
   $("#general-search").on("input", function() {

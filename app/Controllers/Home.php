@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\LogAsetModel;
 use CodeIgniter\API\ResponseTrait;
+use Myth\Auth\Models\UserModel;
 
 class Home extends BaseController
 {
@@ -11,6 +12,9 @@ class Home extends BaseController
     public function index(): string
     {
         $data['title'] = 'Dashboard';
+        $users = model(UserModel::class);
+        $data['user'] = $users->find(session()->get('logged_in'));
+
         return view('dashboard', $data);
     }
 

@@ -13,193 +13,41 @@
     <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/fontawesome-free/css/all.min.css'); ?>">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= base_url('adminLTE/dist/css/adminlte.min.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/select2/css/select2.min.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css'); ?>">
+
+    <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css'); ?>">
+
+
+    <style>
+        .select2-selection--single {
+            min-height: 34px !important;
+        }
+    </style>
+
+
     <?= $this->renderSection('css') ?>
 </head>
 
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
     <div class="wrapper">
-        <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="/" class="nav-link">Dashboard</a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Panduan Pengguna</a>
-                </li>
-            </ul>
-
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
-                <!-- Navbar Search -->
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search"></i>
-                    </a>
-                    <div class="navbar-search-block">
-                        <form class="form-inline" action="#">
-                            <div class="input-group input-group-sm">
-                                <input class="form-control form-control-navbar" id='general-search' type="search" placeholder="Search" aria-label="Search">
-                                <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="button">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </li>
 
 
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                        <i class="fas fa-th-large"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /.navbar -->
-        <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
-            <!-- Brand Logo -->
-            <a href="#" class="brand-link align-middle">
-                <i class="fas fa-warehouse fa-lg mx-2"></i>
-                <!-- <img src="<?= base_url('adminLTE/dist/img/AdminLTELogo.png'); ?>" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8"> -->
-                <span class="brand-text font-weight-light ">Asset Management</span>
-            </a>
+        <?= $this->include('partials/top_menu') ?>
 
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- Sidebar user (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="<?= base_url('adminLTE/dist/img/user2-160x160.jpg'); ?>" class="img-circle elevation-2" alt="User Image">
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
-                    </div>
-                </div>
-
-                <!-- SidebarSearch Form -->
-                <div class="form-inline">
-                    <div class="input-group" data-widget="sidebar-search">
-                        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sidebar">
-                                <i class="fas fa-search fa-fw"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-                        <li class="nav-item">
-                            <a href="/" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Dashboard
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/aset-tetap" class="nav-link">
-                                <i class="nav-icon fas fa-money-bill"></i>
-                                <p>
-                                    Aset Tetap
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/aset-bergerak" class="nav-link">
-                                <i class="nav-icon fas fa-money-bill-wave"></i>
-                                <p>
-                                    Aset Bergerak
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-building"></i>
-                                <p>
-                                    Aset Bangunan
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-header">FUNGSI UTILITAS</li>
-                        <li class="nav-item">
-                            <a href="/master-aset" class="nav-link">
-                                <i class="nav-icon fas fa-shopping-basket"></i>
-                                <p>
-                                    Master Aset
-
-                                </p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fab fa-searchengin fa-lg"></i>
-                                <p>
-                                    Pencarian & Pelaporan
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="/pelaporan/MasterAsetModel" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Master Aset</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/pelaporan/AsetTetapModel" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Aset Tetap</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/pelaporan/AsetBergerakModel" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Aset Bergerak</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-map-marked-alt"></i>
-                                <p>
-                                    Peta Bangunan
-
-                                </p>
-                            </a>
-                        </li>
-
-                    </ul>
-                </nav>
-                <!-- /.sidebar-menu -->
-            </div>
-            <!-- /.sidebar -->
-        </aside>
+        <?= $this->include('partials/side_menu') ?>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
+            <?php if (!empty(session()->getFlashdata('message-konten'))) : ?>
+                <div class="alert alert-<?= session()->getFlashdata('message-konten')['status'] ?> alert-dismissible fade show" role="alert">
+                    <?= session()->getFlashdata('message-konten')['konten']; ?>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif ?>
+
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <div class="container-fluid">
@@ -224,12 +72,7 @@
         </div>
         <!-- /.content-wrapper -->
 
-        <footer class="main-footer">
-            <div class="float-right d-none d-sm-block">
-                <b>Version</b> 3.2.0
-            </div>
-            <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
-        </footer>
+        <?= $this->include('partials/footer'); ?>
 
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">
@@ -239,14 +82,136 @@
     </div>
     <!-- ./wrapper -->
 
+    <div class="modal fade" id="modal-lg">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <form method="post" action="<?= base_url('/aset-bergerak/transaksi'); ?>">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Inventori Adjustment</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-row">
+                            <div class="form-group col-10 col-md-11">
+                                <label for="barcode">Barcode Aset*</label>
+                                <select class="form-control select2" id="barcode" name="kode" required style="width: 100%; "></select>
+                            </div>
+                            <div class="form-group col-2 col-md-1">
+                                <label for="camera"></label>
+                                <a href="#" id="camera" class="form-control text-center"><i class="fas fa-camera m-0 p-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label>Tipe Adjustment*</label>
+                                <br>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input class="custom-control-input" type="radio" name="statusbarang" id="tipe-adjustment1" value="Masuk" checked>
+                                    <label class="custom-control-label" for="tipe-adjustment1">
+                                        Masuk
+                                    </label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input class="custom-control-input" type="radio" name="statusbarang" id="tipe-adjustment2" value="Keluar">
+                                    <label class="custom-control-label" for="tipe-adjustment2">
+                                        Keluar
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="jumlah">Jumlah (Meter/Paket/Set/Unit)*</label>
+                                <input type="number" placeholder="10" required min="1" minlength="1" class="form-control" id="jumlah" name="jumlah">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="pic">PIC (Person In Charge)*</label>
+                                <input type="text" required class="form-control uppercase-input" placeholder="Adaw Watson" id="pic" name="pic">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="keterangan">Keterangan</label>
+                                <textarea class="form-control" name="keterangan" id="keterangan" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
     <!-- jQuery -->
     <script src="<?= base_url('adminLTE/plugins/jquery/jquery.min.js'); ?>"></script>
+
+    <script src="<?= base_url('adminLTE/plugins/moment/moment.min.js'); ?>"></script>
+    <script src="<?= base_url('adminLTE/plugins/moment/locale/id.js'); ?>"></script>
+
     <!-- Bootstrap 4 -->
     <script src="<?= base_url('adminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js'); ?>"></script>
     <!-- AdminLTE App -->
     <script src="<?= base_url('adminLTE/dist/js/adminlte.min.js'); ?>"></script>
     <!-- AdminLTE for demo purposes -->
-    <!-- <script src="<?= base_url('adminLTE/dist/js/demo.js'); ?>"></script> -->
+    <script src="<?= base_url('adminLTE/dist/js/demo.js'); ?>"></script>
+    <script src="<?= base_url('adminLTE/plugins/select2/js/select2.full.min.js'); ?>"></script>
+
+    <script src="<?= base_url('adminLTE/plugins/sweetalert2/sweetalert2.all.min.js'); ?>"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2()
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            $('#barcode').select2({
+                placeholder: "Ketikan kode / nama aset",
+                allowClear: true,
+                ajax: {
+                    url: '/AsetBergerakAPI',
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => {
+                        return {
+                            search: params.term,
+                            type: 'barcode'
+                        };
+                    },
+                    processResults: data => data,
+                    cache: true,
+
+                },
+                minimumInputLength: 1 // Adjust as needed
+            });
+
+
+        });
+        let uppercaseInputs = document.querySelectorAll('.uppercase-input');
+
+        // Add an event listener to each input
+        uppercaseInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                // Convert the input value to uppercase
+                this.value = this.value.toUpperCase();
+            });
+        });
+    </script>
 
     <?= $this->renderSection('javascript') ?>
 </body>

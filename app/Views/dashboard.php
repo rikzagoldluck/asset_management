@@ -75,6 +75,7 @@
 
   <div class="row">
     <div class="col-12">
+
       <!-- DIRECT CHAT -->
       <div class="card direct-chat direct-chat-primary">
         <div class="card-header">
