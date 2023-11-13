@@ -74,7 +74,8 @@
         // Check if there is a second parameter
         if (urlParts.length > 2) {
             // The second parameter is at index 2
-            let secondParameter = urlParts[4];
+            let secondParameter = urlParts[5];
+            console.log(secondParameter)
             fetchData(secondParameter)
             let newStr = secondParameter.split(/(?=[A-Z])/)
             bigTitle = newStr.join(' ').replace(' Model', '');
@@ -86,7 +87,7 @@
             //     $('#pelaporan').DataTable().destroy()
             // }
             $.ajax({
-                url: "/pelaporan/getDataAndColumns/" + modelName,
+                url: "http://localhost/asset_management/pelaporan/getDataAndColumns/" + modelName,
                 type: "GET",
                 dataType: "json",
                 deferRender: true,
@@ -185,8 +186,7 @@
                         'Gagal mengambil data, silakan hubungi admin',
                         'error'
                     )
-                    console.error("Error fetching data and columns:", error);
-                    console.error("Error fetching data and columns:", error);
+                    console.error("Error fetching data and columns:", error.responseText);
                 }
             });
         }

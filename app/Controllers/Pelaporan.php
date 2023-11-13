@@ -54,17 +54,20 @@ class Pelaporan extends BaseController
         $logTransaksiModel = new LogAsetModel();
         // STOK AWAL = KETERSEDIAAN - JUMLAH DATA PERTAMA DI PERIODE TERTENTU (YANG DICARI)
         $stokAwalAsets = $logTransaksiModel->getStokAwal($start, $end);
+
         // STOK AKHIR = KETERSEDIAAN DATA TERAKHIR DI PERIODE TERTENTU (YANG DICARI)
         $stokAkhirAsets = $logTransaksiModel->getStokAkhir($start, $end);
-
+        // return $this->response->setJSON($stokAwalAsets);
+        // return $this->response->setJSON($stokAkhirAsets);
+        // dd($stokAkhirAsets);
         $mergedData = [];
 
 
         foreach ($stokAwalAsets as $awalItem) {
             foreach ($stokAkhirAsets as $akhirItem) {
-                if ($awalItem->kode === $akhirItem->kode) {
+                if ($awalItem->kode_aset === $akhirItem->kode_aset) {
                     $mergedData[] = [
-                        'kode' => $awalItem->kode,
+                        'kode' => $awalItem->kode_aset,
                         'namabarang' => $akhirItem->namabarang,
                         'unit' => $akhirItem->unit,
                         'stok_awal' => $awalItem->stok_awal,

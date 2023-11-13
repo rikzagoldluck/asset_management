@@ -104,7 +104,7 @@
         // Check if there is a second parameter
         if (urlParts.length > 2) {
             // The second parameter is at index 2
-            let secondParameter = urlParts[4];
+            let secondParameter = urlParts[5];
             // fetchData(secondParameter)
             let newStr = secondParameter.split("-")
             bigTitle = newStr[0] + " " + newStr[1]
@@ -243,7 +243,7 @@
                 end: end.format('YYYY-MM-DD')
             }
             $.ajax({
-                url: "/pelaporan/transaksi-aset",
+                url: "<?= base_url('/pelaporan/transaksi-aset'); ?>",
                 type: "PATCH",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -251,6 +251,7 @@
                 deferRender: true,
                 // async: false,
                 success: function(response) {
+                    console.log(response)
                     dataTable.clear();
 
                     // Add new data to DataTable
@@ -262,6 +263,7 @@
                     // dataTable.searchPanes.resizePanes();
                 },
                 error: function(e) {
+
                     console.error(e.responseText)
                 }
             })

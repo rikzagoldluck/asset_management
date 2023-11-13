@@ -99,14 +99,14 @@
         loadData: function(filter) {
           return $.ajax({
             type: "GET",
-            url: "/AsetBangunanAPI",
+            url: "<?= base_url('/AsetBangunanAPI'); ?>",
             data: filter,
           });
         },
         insertItem: function(item) {
           return $.ajax({
             type: "POST",
-            url: "/AsetBangunanAPI",
+            url: "<?= base_url('/AsetBangunanAPI'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -115,7 +115,7 @@
         updateItem: function(item) {
           return $.ajax({
             type: "PUT",
-            url: "/AsetBangunanAPI/1",
+            url: "<?= base_url('/AsetBangunanAPI/1'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -124,7 +124,7 @@
         deleteItem: function(item) {
           return $.ajax({
             type: "DELETE",
-            url: "/AsetBangunanAPI/1",
+            url: "<?= base_url('/AsetBangunanAPI/1'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -134,9 +134,7 @@
       fields: [{
           name: "koderuang",
           title: "Kode",
-          type: {
-            "readonly": true
-          },
+          type: 'text',
           width: 75,
           validate: [
             "required",

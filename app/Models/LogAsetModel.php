@@ -8,7 +8,7 @@ class LogAsetModel extends Model
 {
     protected $table = 'logasetbarang';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['id', 'kode', 'namabarang', 'statusbarang', 'unit', 'jumlah', 'lokasi', 'ketersediaan', 'keterangan', 'tanggal', 'pic'];
+    protected $allowedFields = ['id', 'kode', 'namabarang', 'statusbarang', 'unit', 'jumlah', 'lokasi', 'ketersediaan', 'keterangan', 'tanggal', 'pic', 'user_log_in'];
     // protected $useTimestamps = true;
     public function getAllTimeStockData()
     {
@@ -19,30 +19,41 @@ class LogAsetModel extends Model
     }
     public function getStokAwal($startDate, $endDate)
     {
-        $builder = $this->db->table($this->table);
+        $query = $this->db->query(
+            "SELECT 
+            MAX(l.id),  
+            subquery.kode as kode_aset,
+            -- COALESCE(l.ketersediaan, subquery.ketersediaan) AS stok_awal
+            COALESCE(l.ketersediaan, 0) AS stok_awal
+        FROM(
+              SELECT MIN(id) AS id, kode, ketersediaan
+              FROM logasetbarang
+              WHERE tanggal >= '$startDate' AND tanggal <= '$endDate'
+              GROUP BY kode
+                ) AS subquery
+        LEFT JOIN logasetbarang l ON subquery.kode = l.kode AND l.tanggal < '$startDate' GROUP BY subquery.kode;"
 
-        $builder->select('kode'); // Adjust the select columns as needed
-        $builder->select('(CASE WHEN statusbarang = "Masuk" THEN ketersediaan - jumlah ELSE ketersediaan 
-        + jumlah END) AS stok_awal');
-        // $builder->join('barangbergerak', 'barangbergerak.kodebarang = kode', 'left'); // Adjust the join condition based on your actual relationship
-        $builder->where('tanggal >=', $startDate);
-        $builder->where('tanggal <=', $endDate);
-        $builder->groupBy('kode');
-
-        $query = $builder->get();
-
+        );
         return $query->getResult();
     }
 
     public function getStokAkhir($startDate, $endDate)
     {
-        $builder = $this->db->table($this->table);
-        $builder->select('kode, namabarang, unit, keterangan, ketersediaan as stok_akhir'); // Adjust the select columns as needed
-        // $builder->join('barangbergerak', 'barangbergerak.kodebarang = kode', 'left'); // Adjust the join condition based on your actual relationship
-        $builder->where('tanggal >=', $startDate);
-        $builder->where('tanggal <=', $endDate);
-        $builder->groupBy('kode');
-        $query = $builder->get();
+        $query = $this->db->query(
+            "SELECT 
+            MIN(l.id),  
+            subquery.kode as kode_aset,
+            COALESCE(l.ketersediaan, subquery.ketersediaan) AS stok_akhir,
+            subquery.namabarang, subquery.unit, subquery.keterangan
+        FROM(
+              SELECT MAX(id) AS id , kode, ketersediaan, namabarang, unit, keterangan
+              FROM logasetbarang
+              WHERE tanggal >= '$startDate' AND tanggal <= '$endDate'
+              GROUP BY kode
+                ) AS subquery
+        LEFT JOIN logasetbarang l ON subquery.id = l.id AND l.tanggal > '$startDate' GROUP BY subquery.id;
+            "
+        );
 
         return $query->getResult();
     }

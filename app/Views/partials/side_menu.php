@@ -9,15 +9,7 @@
 
    <!-- Sidebar -->
    <div class="sidebar">
-     <!-- Sidebar user (optional) -->
-     <!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-       <div class="image">
-         <img src="<?= base_url('adminLTE/dist/img/user2-160x160.jpg'); ?>" class="img-circle elevation-2" alt="User Image">
-       </div>
-       <div class="info">
-         <a href="#" class="d-block">Alexander Pierce</a>
-       </div>
-     </div> -->
+
 
      <!-- SidebarSearch Form -->
      <div class="form-inline  mt-3">
@@ -37,7 +29,7 @@
          <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
          <li class="nav-item">
-           <a href="/" class="nav-link">
+           <a href="<?= base_url('/'); ?>" class="nav-link">
              <i class="nav-icon fas fa-tachometer-alt"></i>
              <p>
                Dashboard
@@ -45,7 +37,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a href="/aset-tetap" class="nav-link">
+           <a href="<?= base_url('/aset-tetap'); ?>" class="nav-link">
              <i class="nav-icon fas fa-money-bill"></i>
              <p>
                Aset Tetap
@@ -53,7 +45,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a href="/aset-bergerak" class="nav-link">
+           <a href="<?= base_url('/aset-bergerak'); ?>" class="nav-link">
              <i class="nav-icon fas fa-money-bill-wave"></i>
              <p>
                Aset Bergerak
@@ -61,7 +53,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a href="/aset-bangunan" class="nav-link">
+           <a href="<?= base_url('/aset-bangunan'); ?>" class="nav-link">
              <i class="nav-icon fas fa-building"></i>
              <p>
                Aset Bangunan
@@ -70,7 +62,7 @@
          </li>
          <li class="nav-header">FUNGSI UTILITAS</li>
          <li class="nav-item">
-           <a href="/master-aset" class="nav-link">
+           <a href="<?= base_url('/master-aset'); ?>" class="nav-link">
              <i class="nav-icon fas fa-shopping-basket"></i>
              <p>
                Master Aset
@@ -89,25 +81,25 @@
            </a>
            <ul class="nav nav-treeview">
              <li class="nav-item">
-               <a href="/pelaporan/MasterAsetModel" class="nav-link">
+               <a href="<?= base_url('/pelaporan/MasterAsetModel'); ?>" class="nav-link">
                  <i class="far fa-circle nav-icon"></i>
                  <p>Master Aset</p>
                </a>
              </li>
              <li class="nav-item">
-               <a href="/pelaporan/AsetTetapModel" class="nav-link">
+               <a href="<?= base_url('/pelaporan/AsetTetapModel'); ?>" class="nav-link">
                  <i class="far fa-circle nav-icon"></i>
                  <p>Aset Tetap</p>
                </a>
              </li>
              <li class="nav-item">
-               <a href="/pelaporan/AsetBergerakModel" class="nav-link">
+               <a href="<?= base_url('/pelaporan/AsetBergerakModel'); ?>" class="nav-link">
                  <i class="far fa-circle nav-icon"></i>
                  <p>Aset Bergerak</p>
                </a>
              </li>
              <li class="nav-item">
-               <a href="/pelaporan/transaksi-aset" class="nav-link">
+               <a href="<?= base_url('/pelaporan/transaksi'); ?>-aset" class="nav-link">
                  <i class="far fa-circle nav-icon"></i>
                  <p>Transaksi Aset</p>
                </a>

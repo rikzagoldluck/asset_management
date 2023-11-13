@@ -56,7 +56,7 @@
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="<?= base_url(); ?>">Dashboard</a></li>
                                 <li class="breadcrumb-item active"><?= $this->renderSection('context'); ?></li>
                             </ol>
                         </div>
@@ -87,7 +87,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
 
-                <form method="post" action="<?= base_url('/aset-bergerak/transaksi'); ?>">
+                <form method="post" id="formAdjustInventori" action="#">
                     <div class="modal-header">
                         <h4 class="modal-title">Inventori Adjustment</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -146,7 +146,7 @@
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="button" id="btnAdjustInventori" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -184,7 +184,7 @@
                 placeholder: "Ketikan kode / nama aset",
                 allowClear: true,
                 ajax: {
-                    url: '/AsetBergerakAPI',
+                    url: '<?= base_url('/AsetBergerakAPI'); ?>',
                     dataType: 'json',
                     delay: 250,
                     data: params => {
@@ -193,8 +193,116 @@
                             type: 'barcode'
                         };
                     },
-                    processResults: data => data,
-                    cache: true,
+                    processResults: data => {
+                        if (data.results.length < 1) {
+                            // $('#kolom-pertama').html('')
+                            // $('#kolom-pertama').append('<p>Kode/Aset belum ditemukan</p>')
+                            // $('#kolom-pertama').append('<a type="button" class="btn btn-primary" id="myButton" href="<?= base_url('/master-aset'); ?>" >Silakan tambah aset disini</a>');
+
+                            let kodebarangInput;
+                            let namabarang;
+                            let jenisbarangInput;
+                            let tipebarangInput;
+                            let jumlahInput;
+                            let keteranganInput;
+
+                            Swal.fire({
+                                title: 'Tambah Master Aset',
+                                html: `<form id="addMasterAset">
+                                <label>Aset yang anda cari tidak ditemukan, silakan tambah aset baru</label>
+    <input type="text" id="kodebarang" name="kodebarang" class="swal2-input" placeholder="Kode Aset" autocomplete="off" maxlength="5">
+    <input type="text" id="namabarang" name="namabarang" class="swal2-input" placeholder="Nama Aset" autocomplete="off">
+    <input type="text" id="jenisbarang" name="jenisbarang" class="swal2-input" placeholder="Jenis Barang" autocomplete="off">
+    <input type="text" id="tipebarang" name="tipebarang" class="swal2-input" placeholder="Tipe Barang" autocomplete="off">
+    <input type="number" id="jumlah" name="jumlah" class="swal2-input" placeholder="Jumlah" autocomplete="off" maxlength="11" >
+    <input type="textarea" id="keterangan" name="keterangan" class="swal2-input" placeholder="Keterangan" autocomplete="off" >
+  </form>`,
+                                backdrop: true,
+                                confirmButtonText: 'Tambah',
+                                focusConfirm: false,
+                                showCloseButton: true,
+                                didOpen: () => {
+                                    const popup = Swal.getPopup()
+                                    kodebarangInput = popup.querySelector('#kodebarang')
+                                    namabarangInput = popup.querySelector('#namabarang')
+                                    jenisbarangInput = popup.querySelector('#jenisbarang')
+                                    tipebarangInput = popup.querySelector('#tipebarang')
+                                    jumlahInput = popup.querySelector('#jumlah')
+                                    keteranganInput = popup.querySelector('#keterangan')
+
+                                    kodebarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
+                                    namabarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
+                                    jenisbarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
+                                    tipebarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
+                                    jumlahInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
+                                    keteranganInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
+
+                                },
+                                preConfirm: () => {
+                                    const kodebarang = kodebarangInput.value
+                                    const namabarang = namabarangInput.value
+                                    const jenisbarang = jenisbarangInput.value
+                                    const tipebarang = tipebarangInput.value
+                                    const jumlah = jumlahInput.value
+                                    const keterangan = keteranganInput.value
+
+                                    if (!kodebarang || !namabarang || !jenisbarang || !tipebarang || !jumlah || !keterangan) {
+                                        Swal.showValidationMessage(`Tolong penuhi formulir`)
+                                    }
+
+                                    return new Promise(function(resolve) {
+                                        // Serialize form data
+                                        let formData = {}
+                                        $("#addMasterAset").serializeArray().forEach(function(item) {
+                                            formData[item.name] = item.value;
+                                        });
+
+                                        // Convert the form data to JSON
+                                        let jsonData = JSON.stringify(formData);
+                                        // Submit the form using AJAX to your CodeIgniter 4 resource
+                                        $.ajax({
+                                            type: "POST", // or "GET" depending on your resource method
+                                            url: "<?= base_url('/MasterAsetAPI'); ?>", // Replace with your CI4 resource endpoint
+                                            contentType: "application/json", // Set the content type to JSON
+                                            data: jsonData,
+                                            success: function(response) {
+                                                // Handle the success response using SweetAlert2
+                                                Swal.fire({
+                                                    title: 'Success!',
+                                                    text: "Aset baru berhasil ditambahkan",
+                                                    icon: 'success',
+                                                    confirmButtonText: 'OK'
+                                                });
+                                                resolve();
+                                            },
+                                            error: function(error) {
+                                                // Handle the error response using SweetAlert2
+                                                console.log(error)
+                                                Swal.fire({
+                                                    title: 'Error!',
+                                                    text: 'An error occurred',
+                                                    icon: 'error',
+                                                    confirmButtonText: 'OK'
+                                                });
+                                                resolve();
+                                            }
+                                        });
+                                    });
+
+                                },
+
+                                showLoaderOnConfirm: true,
+                                allowOutsideClick: () => !Swal.isLoading()
+
+                            })
+
+                        } else {
+                            $('#kolom-pertama').html('')
+                        }
+
+                        return data
+                    },
+                    cache: false,
 
                 },
                 minimumInputLength: 1 // Adjust as needed
@@ -209,6 +317,39 @@
             input.addEventListener('input', function() {
                 // Convert the input value to uppercase
                 this.value = this.value.toUpperCase();
+            });
+        });
+
+        $("#btnAdjustInventori").click(function() {
+            // Serialize form data
+            let formData = $("#formAdjustInventori").serialize();
+
+            // Submit the form using AJAX
+            $.ajax({
+                type: "POST", // or "GET" depending on your form method
+                url: "<?= base_url('/aset-bergerak/transaksi'); ?>", // Replace with your server-side script URL
+                data: formData,
+                success: function(response) {
+                    console.log(response)
+                    // Handle the response using SweetAlert2
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: response.status,
+                        confirmButtonText: 'OK'
+                    });
+                    $('#barcode').val(null).trigger('change');
+                },
+                error: function(error) {
+                    // Handle the error using SweetAlert2
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    $('#barcode').val(null).trigger('change');
+                }
             });
         });
     </script>

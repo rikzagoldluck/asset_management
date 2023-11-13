@@ -271,7 +271,7 @@
   (async () => {
 
     const data = await fetch(
-      '/weeklyStockData'
+      "<?= base_url('weeklyStockData'); ?>"
     ).then(response => response.json());
 
     // Create the chart

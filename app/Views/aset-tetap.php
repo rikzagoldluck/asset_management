@@ -74,7 +74,7 @@
       // Use the correct URL for fetching unique values
       let response = await $.ajax({
         type: "GET",
-        url: "/aset-tetap/distinct/lokasi",
+        url: "<?= base_url('/aset-tetap/distinct/lokasi'); ?>",
       });
 
       initializeJSGrid(response);
@@ -124,14 +124,14 @@
         loadData: function(filter) {
           return $.ajax({
             type: "GET",
-            url: "/AsetTetapAPI",
+            url: "<?= base_url('/AsetTetapAPI'); ?>",
             data: filter,
           });
         },
         insertItem: function(item) {
           return $.ajax({
             type: "POST",
-            url: "/AsetTetapAPI",
+            url: "<?= base_url('/AsetTetapAPI'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -140,7 +140,7 @@
         updateItem: function(item) {
           return $.ajax({
             type: "PUT",
-            url: "/AsetTetapAPI/1",
+            url: "<?= base_url('/AsetTetapAPI/1'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -149,7 +149,7 @@
         deleteItem: function(item) {
           return $.ajax({
             type: "DELETE",
-            url: "/AsetTetapAPI/1",
+            url: "<?= base_url('/AsetTetapAPI/1'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

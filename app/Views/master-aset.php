@@ -69,7 +69,7 @@
       // Use the correct URL for fetching unique values
       let response = await $.ajax({
         type: "GET",
-        url: "/master-aset/distinct/jenisbarang",
+        url: "<?= base_url('/master-aset/distinct/jenisbarang'); ?>",
       });
       initializeJSGrid(response);
     } catch (error) {
@@ -88,8 +88,6 @@
         Id: name
       };
     })
-
-
 
     $("#jsGrid1").jsGrid({
       height: "400px",
@@ -121,14 +119,14 @@
         loadData: function(filter) {
           return $.ajax({
             type: "GET",
-            url: "/MasterAsetAPI",
+            url: "<?= base_url('/MasterAsetAPI'); ?>",
             data: filter,
           });
         },
         insertItem: function(item) {
           return $.ajax({
             type: "POST",
-            url: "/MasterAsetAPI",
+            url: "<?= base_url('/MasterAsetAPI'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -137,7 +135,7 @@
         updateItem: function(item) {
           return $.ajax({
             type: "PUT",
-            url: "/MasterAsetAPI/1",
+            url: "<?= base_url('/MasterAsetAPI/1'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -146,7 +144,7 @@
         deleteItem: function(item) {
           return $.ajax({
             type: "DELETE",
-            url: "/MasterAsetAPI/1",
+            url: "<?= base_url('/MasterAsetAPI/1'); ?>",
             data: JSON.stringify(item),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -156,9 +154,7 @@
       fields: [{
           name: "kodebarang",
           title: "Kode",
-          type: {
-            "readonly": true
-          },
+          type: "text",
           width: 75,
           validate: [
             "required",
@@ -204,14 +200,14 @@
           width: 150,
           filtering: false,
         },
-        {
-          filtering: false,
-          validate: "required",
-          name: "ketersediaan",
-          title: "Ketersediaan",
-          type: "number",
-          width: 100,
-        },
+        // {
+        //   filtering: false,
+        //   validate: "required",
+        //   name: "ketersediaan",
+        //   title: "Ketersediaan",
+        //   type: "number",
+        //   width: 100,
+        // },
         {
           name: "keterangan",
           title: "Keterangan",
