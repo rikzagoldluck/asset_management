@@ -8,7 +8,7 @@ class MasterAsetModel extends Model
 {
     protected $table = 'masterbarang';
     protected $primaryKey = 'kodebarang';
-    protected $allowedFields = ['kodebarang', 'namabarang', 'jenisbarang', 'tipebarang', 'jumlah', 'keterangan'];
+    protected $allowedFields = ['kodebarang', 'namabarang', 'jenisbarang', 'tipebarang', 'jumlah', 'keterangan', 'merk'];
     // protected $useTimestamps = true;
     public function searchData($filter)
     {
@@ -17,11 +17,33 @@ class MasterAsetModel extends Model
         $builder->orLike('namabarang', $filter['search']);
         $builder->orLike('jenisbarang', $filter['search']);
         $builder->orLike('tipebarang', $filter['search']);
+        $builder->orLike('merk', $filter['search']);
         $builder->orLike('jumlah', $filter['search']);
         $builder->orLike('keterangan', $filter['search']);
         // Add more columns as needed
 
         return $builder->get()->getResultArray();
+    }
+
+    public function searchByKodeAndNama($filter)
+    {
+        $search = $filter['search'];
+        $type = $filter['type'];
+        $query = $this->db->query("
+        SELECT m.kodebarang, m.namabarang, m.merk, m.tipebarang, b.ketersediaan
+            FROM masterbarang AS m
+            LEFT JOIN barangbergerak AS b
+            ON m.kodebarang = b.kodebarang
+        WHERE 
+            (m.kodebarang LIKE '%$search%' 
+            OR m.namabarang LIKE '%$search%'
+            OR m.tipebarang LIKE '%$search%'
+            OR m.merk LIKE '%$search%'
+            OR m.keterangan LIKE '%$search%')
+            AND m.jenis_aset = '$type'");
+        // Add more columns as needed
+
+        return $query->getResultArray();
     }
 
     public function getUniqueValues($col)

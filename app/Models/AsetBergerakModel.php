@@ -54,4 +54,51 @@ class AsetBergerakModel extends Model
         // Example: return ['column1', 'column2', ...];
         return $this->db->getFieldNames($this->table);
     }
+
+    public function getAsetBergerakLog()
+    {
+        $query = $this->db->query('
+        SELECT 
+            logasetbarang.kode, 
+            masterbarang.namabarang, 
+            masterbarang.merk, 
+            masterbarang.jenisbarang, 
+            masterbarang.tipebarang, 
+            dataruang.namaruang, 
+            logasetbarang.statusbarang, 
+            logasetbarang.jumlah, 
+            logasetbarang.ketersediaan, 
+            logasetbarang.tanggal, 
+            logasetbarang.pic, 
+            logasetbarang.user_log_in, 
+            logasetbarang.tujuan,
+            logasetbarang.dari,
+            logasetbarang.keterangan 
+        FROM logasetbarang 
+        JOIN masterbarang ON logasetbarang.kode = masterbarang.kodebarang
+        JOIN dataruang ON logasetbarang.lokasi = dataruang.koderuang 
+        ORDER BY logasetbarang.id DESC');
+        return $query->getResultArray();
+    }
+
+    public function getAsetStock()
+    {
+        $query = $this->db->query("
+        SELECT 
+            barangbergerak.kodebarang, 
+            masterbarang.namabarang, 
+            masterbarang.merk, 
+            masterbarang.jenisbarang, 
+            masterbarang.tipebarang, 
+            barangbergerak.ketersediaan, 
+            dataruang.namaruang,
+            barangbergerak.keterangan
+        FROM barangbergerak 
+        JOIN masterbarang 
+        ON barangbergerak.kodebarang = masterbarang.kodebarang
+        JOIN dataruang 
+        ON barangbergerak.lokasi = dataruang.koderuang;
+        ");
+        return $query->getResultArray();
+    }
 }

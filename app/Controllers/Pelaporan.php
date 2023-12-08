@@ -9,7 +9,7 @@ use Myth\Auth\Models\UserModel;
 
 class Pelaporan extends BaseController
 {
-    public function index($param): string
+    public function index(): string
     {
         $data['title'] = 'Pelaporan';
         $users = model(UserModel::class);
@@ -51,12 +51,13 @@ class Pelaporan extends BaseController
     {
         $start = $this->request->getJsonVar('start');
         $end = $this->request->getJsonVar('end');
+        $lokasi = $this->request->getJsonVar('lokasi');
         $logTransaksiModel = new LogAsetModel();
         // STOK AWAL = KETERSEDIAAN - JUMLAH DATA PERTAMA DI PERIODE TERTENTU (YANG DICARI)
-        $stokAwalAsets = $logTransaksiModel->getStokAwal($start, $end);
+        $stokAwalAsets = $logTransaksiModel->getStokAwal($start, $end, $lokasi);
 
         // STOK AKHIR = KETERSEDIAAN DATA TERAKHIR DI PERIODE TERTENTU (YANG DICARI)
-        $stokAkhirAsets = $logTransaksiModel->getStokAkhir($start, $end);
+        $stokAkhirAsets = $logTransaksiModel->getStokAkhir($start, $end, $lokasi);
         // return $this->response->setJSON($stokAwalAsets);
         // return $this->response->setJSON($stokAkhirAsets);
         // dd($stokAkhirAsets);

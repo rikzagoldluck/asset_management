@@ -8,7 +8,18 @@ use Myth\Auth\Models\UserModel;
 
 class AsetBergerak extends BaseController
 {
+    public function dashboard()
+    {
+        $data['title'] = 'Aset Bergerak';
+        $users = model(UserModel::class);
+        $model = new AsetBergerakModel();
 
+        $data['user'] = $users->find(session()->get('logged_in'));
+        $data['asetBergerakLog'] = $model->getAsetBergerakLog();
+        $data['asetBergerakStock'] = $model->getAsetStock();
+
+        return view('aset-bergerak/dashboard', $data);
+    }
 
     public function index(): string
     {
@@ -47,30 +58,21 @@ class AsetBergerak extends BaseController
         $data = $this->request->getPost();
         // AMBIL STOK SEBELUMNYA
         $asetBergerakModel = new AsetBergerakModel();
-        $stokLama = $asetBergerakModel->select('ketersediaan')->find($data['kode'])['ketersediaan'];
 
-        // KURANGI STOK DENGAN JUMLAH
-        if ($data['statusbarang'] === 'Keluar' && (intval($data['jumlah']) > intval($stokLama))) {
-            session()->setFlashdata('message', ["konten" => 'Aset gagal dipindahkan, jumlah pengeluaran lebih besar daripada stok', "status" => "danger"]);
-
-            return redirect()->to(base_url('/aset-bergerak'));
-        }
 
         // UPDATE SISA STOK PADA TABEL LOG DAN MASTER
         $stokBaru = 0;
 
 
         if ($data['statusbarang'] === 'Masuk') {
-            $stokBaru = intval($data['jumlah']) + intval($stokLama);
+            $stokBaru = intval($data['jumlah']) + intval($data['stock']);
         } else {
-            $stokBaru =  intval($stokLama) - intval($data['jumlah']);
+            $stokBaru =  intval($data['stock']) - intval($data['jumlah']);
         }
 
         if (!$asetBergerakModel->update($data['kode'], ["ketersediaan" => intval($stokBaru)])) {
-            session()->setFlashdata('message', ["konten" => 'Aset gagal dipindahkan, data ini belum ada di master data aset barang', "status" => "danger"]);
-            return $this->response->setJSON(["status" => "error", "message" => "Aset gagal dipindahkan, data ini belum ada di master data aset barang"]);
 
-            return redirect()->to(base_url('/aset-bergerak'));
+            return $this->response->setJSON(["status" => "error", "msg" => "Aset gagal dipindahkan, data ini belum ada di master data aset barang"]);
         }
 
         $logTransaksiModel = new LogAsetModel();
@@ -79,13 +81,14 @@ class AsetBergerak extends BaseController
 
         $data['tanggal'] =  date("Y-m-d");
         $data['ketersediaan'] = $stokBaru;
+        $user = $users->find(session()->get('logged_in'));
+        $data['user_log_in'] = $user->username;
+        $data['lokasi'] = $asetBergerakModel->find($data['kode'])['lokasi'];
+
         if ($logTransaksiModel->insert($data, false)) {
-            session()->setFlashdata('message', ["konten" => 'Aset berhasil dipindahkan', "status" => "success"]);
-            return $this->response->setJSON(["status" => "success", "message" => "Aset berhasil dipindahkan"]);
+            return $this->response->setJSON(["status" => "success", "msg" => "Aset berhasil dipindahkan"]);
         } else {
-            session()->setFlashdata('message', ["konten" => 'Aset gagal dipindahkan, terjadi kesalahan pada server', "status" => "danger"]);
-            return $this->response->setJSON(["status" => "error", "message" => "Aset gagal dipindahkan, terjadi kesalahan pada server"]);
+            return $this->response->setJSON(["status" => "error", "msg" => "Aset gagal dipindahkan, terjadi kesalahan pada server"]);
         }
-        return redirect()->to(base_url('/aset-bergerak'));
     }
 }

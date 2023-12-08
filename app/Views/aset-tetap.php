@@ -27,6 +27,13 @@
   <div class="card">
     <div class="card-header">
       <h3 class="card-title"><?= $title; ?></h3>
+
+      <div class="card-tools">
+
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-import-excel">
+          <i class="fas fa-file-excel"></i> Import Excel
+        </button>
+      </div>
     </div>
     <!-- /.card-header -->
     <div class="card-body overflow-auto">
@@ -36,6 +43,45 @@
   </div>
 
 </section>
+
+<div class="modal fade" id="modal-import-excel">
+
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <form method="post" id="formUploadExcel" action="#">
+        <div class="modal-header">
+          <h4 class="modal-title">Import Aset Tetap</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+          <div class="form-group">
+            <label for="uploadExcel">Excel Aset Tetap</label>
+            <a href="<?= base_url('public/adminLTE/aset-tetap-template.xlsx'); ?>" download="aset-tetap-template.xlsx" class="font-sm">Unduh template</a>
+            <div class="input-group">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="uploadExcel">
+                <label class="custom-file-label" for="uploadExcel">Pilih File</label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+          <button type="button" id="btnUploadExcel" class="btn btn-primary">Upload</button>
+        </div>
+      </form>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <!-- /.content -->
 <!-- /.content-wrapper -->
 <?= $this->endSection(); ?>
@@ -236,7 +282,6 @@
           filtering: false,
           validate: "required"
         },
-
         {
           filtering: false,
           validate: "required",

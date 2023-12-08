@@ -35,6 +35,15 @@ class AsetBergerakAPI extends ResourceController
         return $this->response->setJSON($data);
     }
 
+    public function show($kode = 'E0001')
+    {
+        $model = new AsetBergerakModel();
+        $data = $model->find($kode);
+        return $this->response->setJSON($data);
+    }
+
+
+
     // create a product
     public function create()
     {

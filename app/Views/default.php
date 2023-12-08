@@ -15,9 +15,8 @@
     <link rel="stylesheet" href="<?= base_url('adminLTE/dist/css/adminlte.min.css'); ?>">
     <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/select2/css/select2.min.css'); ?>">
     <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css'); ?>">
-
     <link rel="stylesheet" href="<?= base_url('adminLTE/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css'); ?>">
-
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 
     <style>
         .select2-selection--single {
@@ -29,7 +28,7 @@
     <?= $this->renderSection('css') ?>
 </head>
 
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini sidebar-closed sidebar-collapse">
     <!-- Site wrapper -->
     <div class="wrapper">
 
@@ -175,6 +174,62 @@
 
     <script>
         $(document).ready(function() {
+            function populateSelectOptions(options) {
+                var select = $('#jenisbarang');
+                select.empty(); // Clear existing options
+
+                select.append('<option value="">-- Pilih Satuan --</option>')
+                // Iterate through the options and append them to the select element
+                $.each(options, function(index, option) {
+                    select.append('<option value="' + option + '">' + option + '</option>');
+                });
+            }
+
+            function setSelectedOption(desiredValue) {
+                // Set the selected option based on the desired value
+                $('#jenisbarang').val(desiredValue);
+            }
+
+            function fetchUniqueValues() {
+
+                // Use the correct URL for fetching unique values
+                $.ajax({
+                    type: "GET",
+                    url: "<?= base_url('/master-aset/distinct/jenisbarang'); ?>",
+                    success: function(data) {
+                        // Populate the select options
+                        populateSelectOptions(data);
+                        // Set the selected option based on some criteria
+                        // setSelectedOption("desired_value");
+                    },
+                    error: function(error) {
+                        console.error('Error fetching options:', error);
+                    }
+                });
+
+            }
+
+            function fetchData(search) {
+                $.ajax({
+                    url: '<?= base_url('/master-aset/search'); ?>', // Replace with your actual API endpoint
+                    method: 'GET',
+                    data: {
+                        search: search
+                    }, // Pass the search value to the server
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.status == 'error') {
+                            Swal.showValidationMessage(`Kode ${search} sudah digunakan, silakan cari kode yang lain`)
+                        } else {
+                            if (Swal.getValidationMessage()) Swal.resetValidationMessage()
+                        }
+                    },
+                    error: function(error) {
+                        Swal.showValidationMessage(`Terjadi kesalahan ketika mengecek kode aset`)
+                    }
+                });
+            }
+
             $('.select2').select2()
             //Initialize Select2 Elements
             $('.select2bs4').select2({
@@ -195,10 +250,6 @@
                     },
                     processResults: data => {
                         if (data.results.length < 1) {
-                            // $('#kolom-pertama').html('')
-                            // $('#kolom-pertama').append('<p>Kode/Aset belum ditemukan</p>')
-                            // $('#kolom-pertama').append('<a type="button" class="btn btn-primary" id="myButton" href="<?= base_url('/master-aset'); ?>" >Silakan tambah aset disini</a>');
-
                             let kodebarangInput;
                             let namabarang;
                             let jenisbarangInput;
@@ -209,19 +260,23 @@
                             Swal.fire({
                                 title: 'Tambah Master Aset',
                                 html: `<form id="addMasterAset">
-                                <label>Aset yang anda cari tidak ditemukan, silakan tambah aset baru</label>
-    <input type="text" id="kodebarang" name="kodebarang" class="swal2-input" placeholder="Kode Aset" autocomplete="off" maxlength="5">
-    <input type="text" id="namabarang" name="namabarang" class="swal2-input" placeholder="Nama Aset" autocomplete="off">
-    <input type="text" id="jenisbarang" name="jenisbarang" class="swal2-input" placeholder="Jenis Barang" autocomplete="off">
-    <input type="text" id="tipebarang" name="tipebarang" class="swal2-input" placeholder="Tipe Barang" autocomplete="off">
-    <input type="number" id="jumlah" name="jumlah" class="swal2-input" placeholder="Jumlah" autocomplete="off" maxlength="11" >
-    <input type="textarea" id="keterangan" name="keterangan" class="swal2-input" placeholder="Keterangan" autocomplete="off" >
-  </form>`,
+                                    <label>Aset yang anda cari tidak ditemukan, silakan tambah aset baru</label>
+                                    <input type="text" id="kodebarang" name="kodebarang" class="swal2-input" placeholder="Kode Aset" autocomplete="off" minlength="8" maxlength="9">
+                                    <input type="text" id="namabarang" name="namabarang" class="swal2-input" placeholder="Nama Aset" autocomplete="off">
+                                    <select id="jenisbarang" name="jenisbarang" class="swal2-select" placeholder="Jenis Barang">
+                                    </select>
+                                    <input type="text" id="tipebarang" name="tipebarang" class="swal2-input" placeholder="Tipe Barang" autocomplete="off">
+                                    <input type="number" id="jumlah" name="jumlah" class="swal2-input" placeholder="Jumlah" autocomplete="off" maxlength="11" >
+                                    <input type="textarea" id="keterangan" name="keterangan" class="swal2-input" placeholder="Keterangan" autocomplete="off" >
+                                </form>`,
                                 backdrop: true,
                                 confirmButtonText: 'Tambah',
                                 focusConfirm: false,
                                 showCloseButton: true,
                                 didOpen: () => {
+                                    fetchUniqueValues();
+
+
                                     const popup = Swal.getPopup()
                                     kodebarangInput = popup.querySelector('#kodebarang')
                                     namabarangInput = popup.querySelector('#namabarang')
@@ -230,7 +285,17 @@
                                     jumlahInput = popup.querySelector('#jumlah')
                                     keteranganInput = popup.querySelector('#keterangan')
 
-                                    kodebarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
+                                    kodebarangInput.onkeyup = (event) => {
+                                        if (event.key === 'Enter') {
+                                            Swal.clickConfirm()
+                                        }
+
+                                        let searchValue = kodebarangInput.value
+
+                                        if (searchValue.length < 8) return;
+                                        fetchData(searchValue);
+                                        // Call the fetchData function with the search value
+                                    }
                                     namabarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
                                     jenisbarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
                                     tipebarangInput.onkeyup = (event) => event.key === 'Enter' && Swal.clickConfirm()
@@ -246,8 +311,14 @@
                                     const jumlah = jumlahInput.value
                                     const keterangan = keteranganInput.value
 
-                                    if (!kodebarang || !namabarang || !jenisbarang || !tipebarang || !jumlah || !keterangan) {
+                                    if (!kodebarang || !namabarang || !jenisbarang || !jumlah) {
                                         Swal.showValidationMessage(`Tolong penuhi formulir`)
+                                        return;
+                                    }
+
+                                    if (kodebarang.length < 8 || kodebarang.length > 9) {
+                                        Swal.showValidationMessage('Kode aset harus terdiri dari 8 atau 9 karakter')
+                                        return;
                                     }
 
                                     return new Promise(function(resolve) {

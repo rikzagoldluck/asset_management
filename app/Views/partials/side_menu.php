@@ -36,8 +36,9 @@
              </p>
            </a>
          </li>
+         <li class="nav-header">MENU U/ INPUT</li>
          <li class="nav-item">
-           <a href="<?= base_url('/aset-tetap'); ?>" class="nav-link">
+           <a href="<?= base_url('/aset-tetap/dashboard'); ?>" class="nav-link">
              <i class="nav-icon fas fa-money-bill"></i>
              <p>
                Aset Tetap
@@ -45,32 +46,31 @@
            </a>
          </li>
          <li class="nav-item">
-           <a href="<?= base_url('/aset-bergerak'); ?>" class="nav-link">
+           <a href="<?= base_url('/aset-bergerak/dashboard'); ?>" class="nav-link">
              <i class="nav-icon fas fa-money-bill-wave"></i>
              <p>
                Aset Bergerak
              </p>
            </a>
          </li>
-         <li class="nav-item">
+         <!-- <li class="nav-item">
            <a href="<?= base_url('/aset-bangunan'); ?>" class="nav-link">
              <i class="nav-icon fas fa-building"></i>
              <p>
                Aset Bangunan
              </p>
            </a>
-         </li>
-         <li class="nav-header">FUNGSI UTILITAS</li>
+         </li>-->
+         <li class="nav-header">MENU U/ LAPORAN</li>
          <li class="nav-item">
-           <a href="<?= base_url('/master-aset'); ?>" class="nav-link">
-             <i class="nav-icon fas fa-shopping-basket"></i>
+           <a href="<?= base_url('/pelaporan'); ?>" class="nav-link">
+             <i class="nav-icon fab fa-searchengin fa-lg"></i>
              <p>
-               Master Aset
-
+               Pelaporan
              </p>
            </a>
          </li>
-
+         <!-- 
          <li class="nav-item">
            <a href="#" class="nav-link">
              <i class="nav-icon fab fa-searchengin fa-lg"></i>
@@ -115,7 +115,6 @@
              </p>
            </a>
          </li>
-
          <li class="nav-header">ADMINISTRATOR</li>
          <li class="nav-item">
            <a href="<?= base_url('register') ?>" class="nav-link">
@@ -125,7 +124,7 @@
 
              </p>
            </a>
-         </li>
+         </li> -->
 
        </ul>
      </nav>

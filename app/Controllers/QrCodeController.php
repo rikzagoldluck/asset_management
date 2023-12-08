@@ -13,137 +13,25 @@ use FPDF;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use TCPDF;
 
+
+use Picqer\Barcode\BarcodeGeneratorHTML;
+
 class QrCodeController extends BaseController
 {
-    public function generatePdf()
-    {
-        // Load Excel file
-        $spreadsheet = IOFactory::load('C:\xampp\htdocs\asset_management\core\app\Controllers\barcode.xlsx');
-        $worksheet = $spreadsheet->getActiveSheet();
-
-        // Create a PDF document
-        $pdf = new FPDF('L', 'cm');
-
-        // Iterate through each row in the Excel file
-        $pdf->AddPage();
-
-        foreach ($worksheet->getRowIterator() as $key => $row) {
-            echo 'tesst<br>';
-            $cellIterator = $row->getCellIterator();
-
-            // Assuming the first column contains the data for QR code
-            $data = $cellIterator->current()->getValue();
-
-
-            // Add a new page to the PDF
-
-            // Position the QR code on the PDF
-            $x = 0; // Set the X-coordinate
-            $y = 0; // Set the Y-coordinate
-            $this->qrcode($data);
-            $pdf->Image(__DIR__ . '/qrcode.png', $x, $y, 2.6, 2.6);
-        }
-
-        // Output the PDF
-        if ($pdf->Output(__DIR__ . '/output.pdf', 'F')) {
-            echo 'ok';
-        } else {
-            echo 'err';
-        }
-    }
-
-    public function qrcode($data)
-    {
-        $writer = new PngWriter();
-
-        // Create QR code
-        $qrCode = QrCode::create($data)
-            ->setEncoding(new Encoding('UTF-8'))
-            ->setSize(300)
-            ->setMargin(10)
-            ->setForegroundColor(new Color(0, 0, 0))
-            ->setBackgroundColor(new Color(255, 255, 255));
-
-        // Create generic logo
-        // $logo = Logo::create(__DIR__ . '/assets/symfony.png')
-        //     ->setResizeToWidth(50)
-        //     ->setPunchoutBackground(true);
-
-        // Create generic label
-        $label = Label::create($data)
-            ->setTextColor(new Color(0, 0, 0));
-
-        $result = $writer->write($qrCode, null, $label);
-        $result->saveToFile(__DIR__ . '/qrcode.png');
-        // return $result->getString();
-    }
 
     public function barcode()
     {
-
         // create new PDF document
         $pdf = new TCPDF('P', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-        // set document information
-        $pdf->SetCreator(PDF_CREATOR);
-
-
-        // set header and footer fonts
-        // $pdf->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        // $pdf->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
-        // set default monospaced font
-        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-
-        // set margins
-        $pdf->SetMargins(10, 0, 10);
         $pdf->SetHeaderMargin(0);
         $pdf->SetFooterMargin(0);
+        $pdf->SetPrintHeader(false);
+        $pdf->setPrintFooter(false);
 
-        // set auto page breaks
-        // $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-        // set image scale factor
-        // $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-        // set some language-dependent strings (optional)
-        if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
-            require_once(dirname(__FILE__) . '/lang/eng.php');
-            $pdf->setLanguageArray($l);
-        }
-
-        $preferences = array(
-            'HideToolbar' => true,
-            'HideMenubar' => true,
-            'HideWindowUI' => true,
-            'FitWindow' => true,
-            'CenterWindow' => true,
-            'DisplayDocTitle' => true,
-            'NonFullScreenPageMode' => 'UseNone', // UseNone, UseOutlines, UseThumbs, UseOC
-            'ViewArea' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'ViewClip' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'PrintArea' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'PrintClip' => 'CropBox', // CropBox, BleedBox, TrimBox, ArtBox
-            'PrintScaling' => 'AppDefault', // None, AppDefault
-            'Duplex' => 'DuplexFlipLongEdge', // Simplex, DuplexFlipShortEdge, DuplexFlipLongEdge
-            'PickTrayByPDFSize' => true,
-            'PrintPageRange' => array(1, 1, 2, 3),
-            'NumCopies' => 2
-        );
-
-        // Check the example n. 60 for advanced page settings
-
-        // set pdf viewer preferences
-        $pdf->setViewerPreferences($preferences);
-        // ---------------------------------------------------------
-
-        // set a barcode on the page footer
-        // $pdf->setBarcode(date('Y-m-d H:i:s'));
-
-        // set font
-        $pdf->SetFont('helvetica', '', 11);
 
         // add a page
+        $pdf->setTopMargin(20);
         $pdf->AddPage();
         // define barcode style
         $style = array(
@@ -163,63 +51,427 @@ class QrCodeController extends BaseController
             'stretchtext' => 0
         );
 
-        // PRINT VARIOUS 1D BARCODES
+        $dataFromDatabase = $this->getDataFromDatabase();
 
+        // Set posisi awal
+        $x = 20;
+        $y = 3;
 
-        // CODE 128 AUTO
-        // $pdf->Cell(0, 0, 'CODE 128 AUTO', 0, 1);
-        $pdf->write1DBarcode('KS010001', 'C128', '', '', 28, 16, 0.4, $style, 'T');
-        $pdf->write1DBarcode('KS010002', 'C128', '', '', 28, 16, 0.4, $style, 'T');
-        $pdf->write1DBarcode('KS010003', 'C128', '', '', 28, 16, 0.4, $style, 'T');
-        $pdf->write1DBarcode('KS010004', 'C128', '', '', 28, 16, 0.4, $style, 'N');
+        // Loop melalui data dan menambahkan barcode ke dokumen PDF
+        foreach ($dataFromDatabase as $key => $row) {
+            if (($key + 1) % 2 == 0) {
+                $pdf->writeHTMLCell(0, 0, $x + 16, $y + 16, '<p>' . $row['val1'] . '</p>');
+                $pdf->write1DBarcode($row['val0'], 'C128', $x, $y, 60, 16, "", $style, 'T');
+                $y += 25.5;
+                $x = 20;
+            } else {
 
-        $pdf->write1DBarcode('KS010005', 'C128', '', '', 28, 16, 0.4, $style, 'T');
-        $pdf->write1DBarcode('KS010006', 'C128', '', '', 28, 16, 0.4, $style, 'T');
-        $pdf->write1DBarcode('KS010005', 'C128', '', '', 28, 16, 0.4, $style, 'T');
-        $pdf->write1DBarcode('KS010006', 'C128', '', '', 28, 16, 0.4, $style, 'N');
-
-        // $pdf->write1DBarcode('KS010001', 'C128', 40, '', 28, 16, 0.4, $style, 'T');
-        // $pdf->write1DBarcode('KS010002', 'C128', 40, '', 28, 16, 0.4, $style, 'T');
-        // $pdf->write1DBarcode('KS010003', 'C128', 40, '', 28, 16, 0.4, $style, 'T');
-        // $pdf->write1DBarcode('KS010004', 'C128', 40, '', 28, 16, 0.4, $style, 'T');
-        // $pdf->write1DBarcode('KS010005', 'C128', 40, '', 28, 16, 0.4, $style, 'T');
-        // $pdf->write1DBarcode('KS010006', 'C128', 40, '', 28, 16, 0.4, $style, 'T');
-        $pdf->Ln();
-
-        // // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // // TEST BARCODE STYLE
-
-        // // define barcode style
-        // $style = array(
-        //     'position' => '',
-        //     'align' => '',
-        //     'stretch' => true,
-        //     'fitwidth' => false,
-        //     'cellfitalign' => '',
-        //     'border' => true,
-        //     'hpadding' => 'auto',
-        //     'vpadding' => 'auto',
-        //     'fgcolor' => array(0, 0, 128),
-        //     'bgcolor' => array(255, 255, 128),
-        //     'text' => true,
-        //     'label' => 'CUSTOM LABEL',
-        //     'font' => 'helvetica',
-        //     'fontsize' => 8,
-        //     'stretchtext' => 4
-        // );
-
-        // // CODE 39 EXTENDED + CHECKSUM
-        // $pdf->Cell(0, 0, 'CODE 39 EXTENDED + CHECKSUM', 0, 1);
-        // $pdf->SetLineStyle(array('width' => 1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 0, 0)));
-        // $pdf->write1DBarcode('CODE 39 E+', 'C39E+', '', '', 120, 25, 0.4, $style, 'N');
-
-        // // ---------------------------------------------------------
-
+                $pdf->writeHTMLCell(0, 0, $x + 16, $y + 16, '<p>' . $row['val1'] . '</p>');
+                $pdf->write1DBarcode($row['val0'], 'C128', $x, $y, 60, 16, "", $style, 'T');
+                $x += 85;
+            }
+            if (($key + 1) % 20 == 0) {
+                $pdf->AddPage();
+                $y = 3;
+            }
+        }
         //Close and output PDF document
         $pdf->Output('example_027.pdf', 'D');
+    }
 
-        //============================================================+
-        // END OF FDLE
-        //============================================================+
+
+    // Fungsi untuk mendapatkan data dari database (gantilah dengan implementasi sesuai kebutuhan Anda)
+    function getDataFromDatabase()
+    {
+        // Implementasikan koneksi dan query database Anda di sini
+        // Contoh:
+        $data = array(
+            array("val0" => "KUR070001", "val1" => "2301001"),
+            array("val0" => "KUR070002", "val1" => "2301002"),
+            array("val0" => "KUR070003", "val1" => "2301003"),
+            array("val0" => "KUR070004", "val1" => "2301004"),
+            array("val0" => "KUR070005", "val1" => "2301005"),
+            array("val0" => "KUR070006", "val1" => "2301006"),
+            array("val0" => "KUR070007", "val1" => "2301007"),
+            array("val0" => "KUR070008", "val1" => "2301008"),
+            array("val0" => "KUR070009", "val1" => "2301009"),
+            array("val0" => "KUR070010", "val1" => "2301010"),
+            array("val0" => "KUR070011", "val1" => "2301011"),
+            array("val0" => "KUR070012", "val1" => "2301012"),
+            array("val0" => "KUR070013", "val1" => "2301013"),
+            array("val0" => "KUR070014", "val1" => "2301014"),
+            array("val0" => "KUR070015", "val1" => "2301015"),
+            array("val0" => "KUR070016", "val1" => "2301016"),
+            array("val0" => "KUR070017", "val1" => "2301017"),
+            array("val0" => "KUR070018", "val1" => "2301018"),
+            array("val0" => "KUR070019", "val1" => "2301019"),
+            array("val0" => "KUR070020", "val1" => "2301020"),
+            array("val0" => "KUR070021", "val1" => "2301021"),
+            array("val0" => "KUR070022", "val1" => "2301022"),
+            array("val0" => "KUR070023", "val1" => "2301023"),
+            array("val0" => "KUR070024", "val1" => "2301024"),
+            array("val0" => "KUR070025", "val1" => "2301025"),
+            array("val0" => "KUR070026", "val1" => "2301026"),
+            array("val0" => "KUR070027", "val1" => "2301027"),
+            array("val0" => "KUR070028", "val1" => "2301028"),
+            array("val0" => "KUR070029", "val1" => "2301029"),
+            array("val0" => "KUR070030", "val1" => "2301030"),
+            array("val0" => "KUR070031", "val1" => "2301031"),
+            array("val0" => "KUR070032", "val1" => "2301032"),
+            array("val0" => "KUR070033", "val1" => "2301033"),
+            array("val0" => "KUR070034", "val1" => "2301034"),
+            array("val0" => "KUR070035", "val1" => "2301035"),
+            array("val0" => "KUR070036", "val1" => "2301036"),
+            array("val0" => "KUR070037", "val1" => "2301037"),
+            array("val0" => "KUR070038", "val1" => "2301038"),
+            array("val0" => "KUR070039", "val1" => "2301039"),
+            array("val0" => "KUR070040", "val1" => "2301040"),
+            array("val0" => "KUR070041", "val1" => "2301041"),
+            array("val0" => "KUR070042", "val1" => "2301042"),
+            array("val0" => "KUR070043", "val1" => "2301043"),
+            array("val0" => "KUR070044", "val1" => "2301044"),
+            array("val0" => "KUR070045", "val1" => "2301045"),
+            array("val0" => "KUR070046", "val1" => "2301046"),
+            array("val0" => "KUR070047", "val1" => "2301047"),
+            array("val0" => "KUR070048", "val1" => "2301048"),
+            array("val0" => "KUR070049", "val1" => "2301049"),
+            array("val0" => "KUR070050", "val1" => "2301050"),
+            array("val0" => "KUR070051", "val1" => "2301051"),
+            array("val0" => "KUR070052", "val1" => "2301052"),
+            array("val0" => "KUR070053", "val1" => "2301053"),
+            array("val0" => "KUR070054", "val1" => "2301054"),
+            array("val0" => "KUR070055", "val1" => "2301055"),
+            array("val0" => "KUR070056", "val1" => "2301056"),
+            array("val0" => "KUR070057", "val1" => "2301057"),
+            array("val0" => "KUR070058", "val1" => "2301058"),
+            array("val0" => "KUR070059", "val1" => "2301059"),
+            array("val0" => "KUR060001", "val1" => "2302001"),
+            array("val0" => "KUR060002", "val1" => "2302002"),
+            array("val0" => "KUR060003", "val1" => "2302003"),
+            array("val0" => "KUR060004", "val1" => "2302004"),
+            array("val0" => "KUR060005", "val1" => "2302005"),
+            array("val0" => "KUR060006", "val1" => "2302006"),
+            array("val0" => "KUR060007", "val1" => "2302007"),
+            array("val0" => "KUR060008", "val1" => "2302008"),
+            array("val0" => "KUR060009", "val1" => "2302009"),
+            array("val0" => "KUR060010", "val1" => "2302010"),
+            array("val0" => "KUR060011", "val1" => "2302011"),
+            array("val0" => "KUR060012", "val1" => "2302012"),
+            array("val0" => "KUR060013", "val1" => "2302013"),
+            array("val0" => "KUR060014", "val1" => "2302014"),
+            array("val0" => "KUR060015", "val1" => "2302015"),
+            array("val0" => "KUR060016", "val1" => "2302016"),
+            array("val0" => "KUR060017", "val1" => "2302017"),
+            array("val0" => "KUR060018", "val1" => "2302018"),
+            array("val0" => "KUR060019", "val1" => "2302019"),
+            array("val0" => "KUR060020", "val1" => "2302020"),
+            array("val0" => "KUR060021", "val1" => "2302021"),
+            array("val0" => "KUR060022", "val1" => "2302022"),
+            array("val0" => "KUR060023", "val1" => "2302023"),
+            array("val0" => "KUR060024", "val1" => "2302024"),
+            array("val0" => "KUR060025", "val1" => "2302025"),
+            array("val0" => "KUR060026", "val1" => "2302026"),
+            array("val0" => "KUR060027", "val1" => "2302027"),
+            array("val0" => "KUR060028", "val1" => "2302028"),
+            array("val0" => "KUR060029", "val1" => "2302029"),
+            array("val0" => "KUR060030", "val1" => "2302030"),
+            array("val0" => "KUR060031", "val1" => "2302031"),
+            array("val0" => "KUR060032", "val1" => "2302032"),
+            array("val0" => "KUR060033", "val1" => "2302033"),
+            array("val0" => "KUR060034", "val1" => "2302034"),
+            array("val0" => "KUR060035", "val1" => "2302035"),
+            array("val0" => "KUR060036", "val1" => "2302036"),
+            array("val0" => "KUR060037", "val1" => "2302037"),
+            array("val0" => "KUR060038", "val1" => "2302038"),
+            array("val0" => "KUR060039", "val1" => "2302039"),
+            array("val0" => "KUR060040", "val1" => "2302040"),
+            array("val0" => "KUR060041", "val1" => "2302041"),
+            array("val0" => "KUR060042", "val1" => "2302042"),
+            array("val0" => "KUR060043", "val1" => "2302043"),
+            array("val0" => "KUR060044", "val1" => "2302044"),
+            array("val0" => "KUR060045", "val1" => "2302045"),
+            array("val0" => "KUR060046", "val1" => "2302046"),
+            array("val0" => "KUR060047", "val1" => "2302047"),
+            array("val0" => "KUR060048", "val1" => "2302048"),
+            array("val0" => "KUR060049", "val1" => "2302049"),
+            array("val0" => "KUR060050", "val1" => "2302050"),
+            array("val0" => "KUR060051", "val1" => "2302051"),
+            array("val0" => "KUR060052", "val1" => "2302052"),
+            array("val0" => "KUR060053", "val1" => "2302053"),
+            array("val0" => "KUR060054", "val1" => "2302054"),
+            array("val0" => "KUR060055", "val1" => "2302055"),
+            array("val0" => "KUR060056", "val1" => "2302056"),
+            array("val0" => "KUR060057", "val1" => "2302057"),
+            array("val0" => "KUR060058", "val1" => "2302058"),
+            array("val0" => "KUR060059", "val1" => "2302059"),
+            array("val0" => "KUR060060", "val1" => "2302060"),
+            array("val0" => "KUR070060", "val1" => "2303001"),
+            array("val0" => "KUR070061", "val1" => "2303002"),
+            array("val0" => "KUR070062", "val1" => "2303003"),
+            array("val0" => "KUR070063", "val1" => "2303004"),
+            array("val0" => "KUR070064", "val1" => "2303005"),
+            array("val0" => "KUR070065", "val1" => "2303006"),
+            array("val0" => "KUR070066", "val1" => "2303007"),
+            array("val0" => "KUR070067", "val1" => "2303008"),
+            array("val0" => "KUR070068", "val1" => "2303009"),
+            array("val0" => "KUR070069", "val1" => "2303010"),
+            array("val0" => "KUR070070", "val1" => "2303011"),
+            array("val0" => "KUR070071", "val1" => "2303012"),
+            array("val0" => "KUR070072", "val1" => "2303013"),
+            array("val0" => "KUR070073", "val1" => "2303014"),
+            array("val0" => "KUR070074", "val1" => "2303015"),
+            array("val0" => "KUR070075", "val1" => "2303016"),
+            array("val0" => "KUR070076", "val1" => "2303017"),
+            array("val0" => "KUR070077", "val1" => "2303018"),
+            array("val0" => "KUR070078", "val1" => "2303019"),
+            array("val0" => "KUR070079", "val1" => "2303020"),
+            array("val0" => "KUR070080", "val1" => "2303021"),
+            array("val0" => "KUR070081", "val1" => "2303022"),
+            array("val0" => "KUR070082", "val1" => "2303023"),
+            array("val0" => "KUR070083", "val1" => "2303024"),
+            array("val0" => "KUR070084", "val1" => "2303025"),
+            array("val0" => "KUR070085", "val1" => "2303026"),
+            array("val0" => "KUR070086", "val1" => "2303027"),
+            array("val0" => "KUR070087", "val1" => "2303028"),
+            array("val0" => "KUR070088", "val1" => "2303029"),
+            array("val0" => "KUR070089", "val1" => "2303030"),
+            array("val0" => "KUR070090", "val1" => "2201001"),
+            array("val0" => "KUR070091", "val1" => "2201002"),
+            array("val0" => "KUR070092", "val1" => "2201003"),
+            array("val0" => "KUR070093", "val1" => "2201004"),
+            array("val0" => "KUR070094", "val1" => "2201005"),
+            array("val0" => "KUR070095", "val1" => "2201006"),
+            array("val0" => "KUR070096", "val1" => "2201007"),
+            array("val0" => "KUR070097", "val1" => "2201008"),
+            array("val0" => "KUR070098", "val1" => "2201009"),
+            array("val0" => "KUR070099", "val1" => "2201010"),
+            array("val0" => "KUR070100", "val1" => "2201011"),
+            array("val0" => "KUR070101", "val1" => "2201012"),
+            array("val0" => "KUR070102", "val1" => "2201013"),
+            array("val0" => "KUR070103", "val1" => "2201014"),
+            array("val0" => "KUR070104", "val1" => "2201015"),
+            array("val0" => "KUR070105", "val1" => "2201016"),
+            array("val0" => "KUR070106", "val1" => "2201017"),
+            array("val0" => "KUR070107", "val1" => "2201018"),
+            array("val0" => "KUR070108", "val1" => "2201019"),
+            array("val0" => "KUR070109", "val1" => "2201020"),
+            array("val0" => "KUR070110", "val1" => "2201021"),
+            array("val0" => "KUR070111", "val1" => "2201022"),
+            array("val0" => "KUR070112", "val1" => "2201023"),
+            array("val0" => "KUR070113", "val1" => "2201024"),
+            array("val0" => "KUR070114", "val1" => "2201025"),
+            array("val0" => "KUR070115", "val1" => "2201026"),
+            array("val0" => "KUR070116", "val1" => "2201027"),
+            array("val0" => "KUR070117", "val1" => "2201028"),
+            array("val0" => "KUR070118", "val1" => "2201029"),
+            array("val0" => "KUR070119", "val1" => "2201030"),
+            array("val0" => "KUR070120", "val1" => "2201031"),
+            array("val0" => "KUR070121", "val1" => "2201032"),
+            array("val0" => "KUR070122", "val1" => "2201033"),
+            array("val0" => "KUR070123", "val1" => "2201034"),
+            array("val0" => "KUR070124", "val1" => "2201035"),
+            array("val0" => "KUR070125", "val1" => "2201036"),
+            array("val0" => "KUR070126", "val1" => "2201037"),
+            array("val0" => "KUR070127", "val1" => "2201038"),
+            array("val0" => "KUR070128", "val1" => "2201039"),
+            array("val0" => "KUR070129", "val1" => "2201040"),
+            array("val0" => "KUR070130", "val1" => "2201041"),
+            array("val0" => "KUR070131", "val1" => "2201042"),
+            array("val0" => "KUR070132", "val1" => "2201043"),
+            array("val0" => "KUR070133", "val1" => "2201044"),
+            array("val0" => "KUR070134", "val1" => "2201045"),
+            array("val0" => "KUR070135", "val1" => "2201046"),
+            array("val0" => "KUR070136", "val1" => "2201047"),
+            array("val0" => "KUR070137", "val1" => "2201048"),
+            array("val0" => "KUR070138", "val1" => "2201049"),
+            array("val0" => "KUR070139", "val1" => "2201050"),
+            array("val0" => "KUR070140", "val1" => "2201051"),
+            array("val0" => "KUR070141", "val1" => "2201052"),
+            array("val0" => "KUR070142", "val1" => "2201053"),
+            array("val0" => "KUR070143", "val1" => "2201054"),
+            array("val0" => "KUR070144", "val1" => "2201055"),
+            array("val0" => "KUR070145", "val1" => "2201056"),
+            array("val0" => "KUR070146", "val1" => "2201057"),
+            array("val0" => "KUR070147", "val1" => "2201058"),
+            array("val0" => "KUR060061", "val1" => "2202001"),
+            array("val0" => "KUR060062", "val1" => "2202002"),
+            array("val0" => "KUR060063", "val1" => "2202003"),
+            array("val0" => "KUR060064", "val1" => "2202004"),
+            array("val0" => "KUR060065", "val1" => "2202005"),
+            array("val0" => "KUR060066", "val1" => "2202006"),
+            array("val0" => "KUR060067", "val1" => "2202007"),
+            array("val0" => "KUR060068", "val1" => "2202008"),
+            array("val0" => "KUR060069", "val1" => "2202009"),
+            array("val0" => "KUR060070", "val1" => "2202010"),
+            array("val0" => "KUR060071", "val1" => "2202011"),
+            array("val0" => "KUR060072", "val1" => "2202012"),
+            array("val0" => "KUR060073", "val1" => "2202013"),
+            array("val0" => "KUR060074", "val1" => "2202014"),
+            array("val0" => "KUR060075", "val1" => "2202015"),
+            array("val0" => "KUR060076", "val1" => "2202016"),
+            array("val0" => "KUR060077", "val1" => "2202017"),
+            array("val0" => "KUR060078", "val1" => "2202018"),
+            array("val0" => "KUR060079", "val1" => "2202019"),
+            array("val0" => "KUR060080", "val1" => "2202020"),
+            array("val0" => "KUR060081", "val1" => "2202021"),
+            array("val0" => "KUR060082", "val1" => "2202022"),
+            array("val0" => "KUR060083", "val1" => "2202023"),
+            array("val0" => "KUR060084", "val1" => "2202024"),
+            array("val0" => "KUR060085", "val1" => "2202025"),
+            array("val0" => "KUR060086", "val1" => "2202026"),
+            array("val0" => "KUR060087", "val1" => "2202027"),
+            array("val0" => "KUR060088", "val1" => "2202028"),
+            array("val0" => "KUR060089", "val1" => "2202029"),
+            array("val0" => "KUR060090", "val1" => "2202030"),
+            array("val0" => "KUR060091", "val1" => "2202031"),
+            array("val0" => "KUR060092", "val1" => "2202032"),
+            array("val0" => "KUR060093", "val1" => "2202033"),
+            array("val0" => "KUR060094", "val1" => "2202034"),
+            array("val0" => "KUR060095", "val1" => "2202035"),
+            array("val0" => "KUR060096", "val1" => "2202036"),
+            array("val0" => "KUR060097", "val1" => "2202037"),
+            array("val0" => "KUR060098", "val1" => "2202038"),
+            array("val0" => "KUR060099", "val1" => "2202039"),
+            array("val0" => "KUR060100", "val1" => "2202040"),
+            array("val0" => "KUR060101", "val1" => "2202041"),
+            array("val0" => "KUR060102", "val1" => "2202042"),
+            array("val0" => "KUR060103", "val1" => "2202043"),
+            array("val0" => "KUR060104", "val1" => "2202044"),
+            array("val0" => "KUR060105", "val1" => "2202045"),
+            array("val0" => "KUR060106", "val1" => "2202046"),
+            array("val0" => "KUR060107", "val1" => "2202047"),
+            array("val0" => "KUR060108", "val1" => "2202048"),
+            array("val0" => "KUR060109", "val1" => "2202049"),
+            array("val0" => "KUR060110", "val1" => "2202050"),
+            array("val0" => "KUR060111", "val1" => "2202051"),
+            array("val0" => "KUR060112", "val1" => "2202052"),
+            array("val0" => "KUR060113", "val1" => "2202053"),
+            array("val0" => "KUR060114", "val1" => "2202054"),
+            array("val0" => "KUR060115", "val1" => "2202055"),
+            array("val0" => "KUR060116", "val1" => "2202056"),
+            array("val0" => "KUR060117", "val1" => "2202057"),
+            array("val0" => "KUR070148", "val1" => "2203001"),
+            array("val0" => "KUR070149", "val1" => "2203002"),
+            array("val0" => "KUR070150", "val1" => "2203003"),
+            array("val0" => "KUR070151", "val1" => "2203004"),
+            array("val0" => "KUR070152", "val1" => "2203005"),
+            array("val0" => "KUR070153", "val1" => "2203006"),
+            array("val0" => "KUR070154", "val1" => "2203007"),
+            array("val0" => "KUR070155", "val1" => "2203008"),
+            array("val0" => "KUR070156", "val1" => "2203009"),
+            array("val0" => "KUR070157", "val1" => "2203010"),
+            array("val0" => "KUR070158", "val1" => "2203011"),
+            array("val0" => "KUR070159", "val1" => "2203012"),
+            array("val0" => "KUR070160", "val1" => "2203013"),
+            array("val0" => "KUR070161", "val1" => "2203014"),
+            array("val0" => "KUR070162", "val1" => "2203015"),
+            array("val0" => "KUR070163", "val1" => "2203016"),
+            array("val0" => "KUR070164", "val1" => "2203017"),
+            array("val0" => "KUR070165", "val1" => "2203018"),
+            array("val0" => "KUR070166", "val1" => "2203019"),
+            array("val0" => "KUR070167", "val1" => "2203020"),
+            array("val0" => "KUR070168", "val1" => "2203021"),
+            array("val0" => "KUR070169", "val1" => "2203022"),
+            array("val0" => "KUR070170", "val1" => "2203023"),
+            array("val0" => "KUR070171", "val1" => "2203024"),
+            array("val0" => "KUR070172", "val1" => "2203025"),
+            array("val0" => "KUR070173", "val1" => "2203026"),
+            array("val0" => "KUR070174", "val1" => "2203027"),
+            array("val0" => "KUR070175", "val1" => "2203028"),
+            array("val0" => "KUR070176", "val1" => "2203029"),
+            array("val0" => "KUR070177", "val1" => "2203030"),
+            array("val0" => "KUR060118", "val1" => "2101001"),
+            array("val0" => "KUR060119", "val1" => "2101002"),
+            array("val0" => "KUR060120", "val1" => "2101003"),
+            array("val0" => "KUR060121", "val1" => "2101004"),
+            array("val0" => "KUR060122", "val1" => "2101005"),
+            array("val0" => "KUR060123", "val1" => "2101006"),
+            array("val0" => "KUR060124", "val1" => "2101007"),
+            array("val0" => "KUR060125", "val1" => "2101008"),
+            array("val0" => "KUR060126", "val1" => "2101009"),
+            array("val0" => "KUR060127", "val1" => "2101010"),
+            array("val0" => "KUR060128", "val1" => "2101011"),
+            array("val0" => "KUR060129", "val1" => "2101012"),
+            array("val0" => "KUR060130", "val1" => "2101013"),
+            array("val0" => "KUR060131", "val1" => "2101014"),
+            array("val0" => "KUR060132", "val1" => "2101015"),
+            array("val0" => "KUR060133", "val1" => "2101016"),
+            array("val0" => "KUR060134", "val1" => "2101017"),
+            array("val0" => "KUR060135", "val1" => "2101018"),
+            array("val0" => "KUR060136", "val1" => "2101019"),
+            array("val0" => "KUR060137", "val1" => "2101020"),
+            array("val0" => "KUR060138", "val1" => "2101021"),
+            array("val0" => "KUR060139", "val1" => "2101022"),
+            array("val0" => "KUR060140", "val1" => "2101023"),
+            array("val0" => "KUR060141", "val1" => "2101024"),
+            array("val0" => "KUR060142", "val1" => "2101025"),
+            array("val0" => "KUR060143", "val1" => "2101026"),
+            array("val0" => "KUR060144", "val1" => "2101027"),
+            array("val0" => "KUR060145", "val1" => "2101028"),
+            array("val0" => "KUR060146", "val1" => "2101029"),
+            array("val0" => "KUR060147", "val1" => "2101030"),
+            array("val0" => "KUR060148", "val1" => "2102001"),
+            array("val0" => "KUR060149", "val1" => "2102002"),
+            array("val0" => "KUR060150", "val1" => "2102003"),
+            array("val0" => "KUR060151", "val1" => "2102004"),
+            array("val0" => "KUR060152", "val1" => "2102005"),
+            array("val0" => "KUR060153", "val1" => "2102006"),
+            array("val0" => "KUR060154", "val1" => "2102007"),
+            array("val0" => "KUR060155", "val1" => "2102008"),
+            array("val0" => "KUR060156", "val1" => "2102009"),
+            array("val0" => "KUR060157", "val1" => "2102010"),
+            array("val0" => "KUR060158", "val1" => "2102011"),
+            array("val0" => "KUR060159", "val1" => "2102012"),
+            array("val0" => "KUR060160", "val1" => "2102013"),
+            array("val0" => "KUR060161", "val1" => "2102014"),
+            array("val0" => "KUR060162", "val1" => "2102015"),
+            array("val0" => "KUR060163", "val1" => "2102016"),
+            array("val0" => "KUR060164", "val1" => "2102017"),
+            array("val0" => "KUR060165", "val1" => "2102018"),
+            array("val0" => "KUR060166", "val1" => "2102019"),
+            array("val0" => "KUR060167", "val1" => "2102020"),
+            array("val0" => "KUR060168", "val1" => "2102021"),
+            array("val0" => "KUR060169", "val1" => "2102022"),
+            array("val0" => "KUR060170", "val1" => "2102023"),
+            array("val0" => "KUR060171", "val1" => "2102024"),
+            array("val0" => "KUR060172", "val1" => "2102025"),
+            array("val0" => "KUR060173", "val1" => "2102026"),
+            array("val0" => "KUR060174", "val1" => "2102027"),
+            array("val0" => "KUR060175", "val1" => "2102028"),
+            array("val0" => "KUR060176", "val1" => "2102029"),
+            array("val0" => "KUR060177", "val1" => "2102030"),
+            array("val0" => "KUR060178", "val1" => "2103001"),
+            array("val0" => "KUR060179", "val1" => "2103002"),
+            array("val0" => "KUR060180", "val1" => "2103003"),
+            array("val0" => "KUR060181", "val1" => "2103004"),
+            array("val0" => "KUR060182", "val1" => "2103005"),
+            array("val0" => "KUR060183", "val1" => "2103006"),
+            array("val0" => "KUR060184", "val1" => "2103007"),
+            array("val0" => "KUR060185", "val1" => "2103008"),
+            array("val0" => "KUR060186", "val1" => "2103009"),
+            array("val0" => "KUR060187", "val1" => "2103010"),
+            array("val0" => "KUR060188", "val1" => "2103011"),
+            array("val0" => "KUR060189", "val1" => "2103012"),
+            array("val0" => "KUR060190", "val1" => "2103013"),
+            array("val0" => "KUR060191", "val1" => "2103014"),
+            array("val0" => "KUR060192", "val1" => "2103015"),
+            array("val0" => "KUR060193", "val1" => "2103016"),
+            array("val0" => "KUR060194", "val1" => "2103017"),
+            array("val0" => "KUR060195", "val1" => "2103018"),
+            array("val0" => "KUR060196", "val1" => "2103019"),
+            array("val0" => "KUR060197", "val1" => "2103020"),
+            array("val0" => "KUR060198", "val1" => "2103021"),
+            array("val0" => "KUR060199", "val1" => "2103022"),
+            array("val0" => "KUR060200", "val1" => "2103023"),
+            array("val0" => "KUR060201", "val1" => "2103024"),
+            array("val0" => "KUR060202", "val1" => "2103025"),
+            array("val0" => "KUR060203", "val1" => "2103026"),
+            array("val0" => "KUR060204", "val1" => "2103027"),
+            array("val0" => "KUR060205", "val1" => "2103028"),
+            array("val0" => "KUR060206", "val1" => "2103029"),
+            array("val0" => "KUR060207", "val1" => "2103030"),
+        );
+
+        return $data;
     }
 }

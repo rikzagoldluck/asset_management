@@ -80,8 +80,10 @@
   // Call the function to fetch unique values
   fetchUniqueValues();
 
+
   function initializeJSGrid(uniqueValues) {
     // $(function() {
+
     let unitUnique = uniqueValues.map(name => {
       return {
         Name: name,
@@ -160,7 +162,11 @@
             "required",
             {
               validator: "maxLength",
-              param: 5
+              param: 9
+            },
+            {
+              validator: "minLength",
+              param: 8
             },
           ]
         },
@@ -176,6 +182,7 @@
           title: "Jenis Barang",
           type: "select",
           items: unitUnique,
+
           editTemplate: function() {
             let $select = jsGrid.fields.select.prototype.editTemplate.apply(this, arguments);
             let filteredValues = uniqueValues;
@@ -186,6 +193,7 @@
             }).remove();
             return $select;
           },
+
           valueField: "Id",
           textField: "Name",
           width: 100,
@@ -200,14 +208,14 @@
           width: 150,
           filtering: false,
         },
-        // {
-        //   filtering: false,
-        //   validate: "required",
-        //   name: "ketersediaan",
-        //   title: "Ketersediaan",
-        //   type: "number",
-        //   width: 100,
-        // },
+        {
+          filtering: false,
+          validate: "required",
+          name: "jumlah",
+          title: "Jumlah",
+          type: "number",
+          width: 100,
+        },
         {
           name: "keterangan",
           title: "Keterangan",
@@ -215,7 +223,6 @@
           width: 100,
           filtering: false
         },
-
         {
           type: "control"
         }
@@ -255,9 +262,7 @@
       let searchTerm = $("#general-search").val();
       $("#jsGrid1").jsGrid("loadData", {
         search: searchTerm
-      }).done(function() {
-        console.log("filtering completed");
-      });;
+      })
     }, 300); // Adjust the debounce time as needed
   });
 </script>

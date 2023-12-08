@@ -28,10 +28,22 @@ class AsetTetapAPI extends ResourceController
     public function create()
     {
         $model = new AsetTetapModel();
+        $kode = $this->request->getPost('kode');
+        $jumlah = $this->request->getPost('jumlah');
+        $kondisi = $this->request->getPost('kondisi');
+        $lokasi = $this->request->getPost('lokasi');
+        $keterangan = $this->request->getPost('keterangan');
 
-        $model->insert($this->request->getJSON());
-        $res = $model->find($model->getInsertID());
-        return $this->respondCreated($res, 201);
+        if ($jumlah < 1) {
+            return $this->respondCreated(["status" => "error", "msg" => 'Jumlah harus lebih dari 0'], 400);
+        }
+        $data = ['kode' => $kode, 'jumlah' => $jumlah, 'kondisi' => $kondisi, 'lokasi' => $lokasi, 'keterangan' => $keterangan];
+
+        $res = $model->insertMultipleRecords($data);
+
+        // $model->insert($this->request->getJSON());
+        // $res = $model->find($model->getInsertID());
+        return $this->respondCreated(["status" => $res ? "success" : "error", "msg" => $res], 201);
     }
 
     // update product

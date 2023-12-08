@@ -8,7 +8,7 @@ class LogAsetModel extends Model
 {
     protected $table = 'logasetbarang';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['id', 'kode', 'namabarang', 'statusbarang', 'unit', 'jumlah', 'lokasi', 'ketersediaan', 'keterangan', 'tanggal', 'pic', 'user_log_in'];
+    protected $allowedFields = ['id', 'kode', 'namabarang', 'statusbarang', 'unit', 'jumlah', 'lokasi', 'ketersediaan', 'keterangan', 'tanggal', 'pic', 'user_log_in', 'dari', 'tujuan'];
     // protected $useTimestamps = true;
     public function getAllTimeStockData()
     {
@@ -17,7 +17,7 @@ class LogAsetModel extends Model
             ->get()
             ->getResultArray();
     }
-    public function getStokAwal($startDate, $endDate)
+    public function getStokAwal($startDate, $endDate, $lokasi)
     {
         $query = $this->db->query(
             "SELECT 
@@ -28,7 +28,7 @@ class LogAsetModel extends Model
         FROM(
               SELECT MIN(id) AS id, kode, ketersediaan
               FROM logasetbarang
-              WHERE tanggal >= '$startDate' AND tanggal <= '$endDate'
+              WHERE tanggal >= '$startDate' AND tanggal <= '$endDate' AND lokasi = '$lokasi'
               GROUP BY kode
                 ) AS subquery
         LEFT JOIN logasetbarang l ON subquery.kode = l.kode AND l.tanggal < '$startDate' GROUP BY subquery.kode;"
@@ -37,7 +37,7 @@ class LogAsetModel extends Model
         return $query->getResult();
     }
 
-    public function getStokAkhir($startDate, $endDate)
+    public function getStokAkhir($startDate, $endDate, $lokasi)
     {
         $query = $this->db->query(
             "SELECT 
@@ -48,7 +48,7 @@ class LogAsetModel extends Model
         FROM(
               SELECT MAX(id) AS id , kode, ketersediaan, namabarang, unit, keterangan
               FROM logasetbarang
-              WHERE tanggal >= '$startDate' AND tanggal <= '$endDate'
+              WHERE tanggal >= '$startDate' AND tanggal <= '$endDate' AND lokasi = '$lokasi'
               GROUP BY kode
                 ) AS subquery
         LEFT JOIN logasetbarang l ON subquery.id = l.id AND l.tanggal > '$startDate' GROUP BY subquery.id;
